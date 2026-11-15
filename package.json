@@ -1,0 +1,13 @@
+{
+  "name": "openstage-core",
+  "private": true,
+  "description": "The shared core of the OpenStage tools: formats, packages and test sets more than one tool depends on.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "node tools/check_all.mjs"
+  }
+}
