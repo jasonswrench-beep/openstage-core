@@ -1,0 +1,16 @@
+[package]
+name = "prismqda-stats"
+version = "1.0.0"
+description = "The statistics PrismQDA and PrismStatistics report, written from published definitions and checked against R."
+edition = "2021"
+rust-version = "1.92"
+license = "Apache-2.0"
+authors = ["Jason S. Wrench", "the PrismQDA contributors"]
+publish = false
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+
+[dev-dependencies]
+serde_json = "1.0.154"

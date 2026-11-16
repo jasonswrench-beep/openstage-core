@@ -1,15 +1,16 @@
 // @openstage/pstat: read, write and check .pstat project files, format 1 (specs/pstat/PSTAT-1.md).
 // No dependencies; Node 22.2 or later (node:zlib's crc32). Rule numbers in messages are the spec's section 8.
 
-import { MAX_UNPACKED, readEntry, writeSingleEntry, ZipError } from "./zip.js";
+import { checkProfile, PARTS } from "./profiles.js";
+import { MAX_UNPACKED, readEntry, writeArchive, ZipError } from "./zip.js";
 
 export const EXTENSION = "pstat";
 export const FORMAT = "PrismStatistics project";
 export const VERSION = 1;
-export const SPEC_REVISION = "1.0";
+export const SPEC_REVISION = "1.1";
 export const ENTRY = "project.json";
-export const PROFILE_ITEM_RESULTS = "OpenAssess item results 1";
-export { MAX_UNPACKED };
+export { MAX_UNPACKED, PARTS };
+export { attributeName, attributeNames, entryFor, isAnswer, pointsFor, PROFILE_CASE_TABLE, PROFILE_ITEM_RESULTS, PROFILE_ITEM_RESULTS_2 } from "./profiles.js";
 
 const U32_MAX = 4294967295;
 const MEASURES = new Set(["nominal", "ordinal", "scale"]);
@@ -140,8 +141,9 @@ export function validName(name) {
 /**
  * Checks a parsed project.json against the rules of PSTAT-1.
  * @param {unknown} project
- * @param {{ as?: "writer" | "reader", fractional?: Set<string> }} [options] `as: "writer"` (the default) also applies
- *   the writer rules; `fractional` is from parseJson, for rule J2.
+ * @param {{ as?: "writer" | "reader", fractional?: Set<string>, part?: unknown, partFractional?: Set<string> }} [options]
+ *   `as: "writer"` (the default) also applies the writer rules, the profile's layout among them; `fractional` is from
+ *   parseJson, for rule J2; `part` is the profile's part, parsed (section 2), and `partFractional` its J2 record.
  * @returns {Array<{ rule: string, path: string, message: string }>} the problems; empty when the project is sound
  */
 export function checkProject(project, options = {}) {
@@ -246,72 +248,7 @@ export function checkProject(project, options = {}) {
     project.operations.forEach((o, n) => {
       if (!isObject(o) || !isInt(o.seq) || typeof o.command !== "string" || !isObject(o.args)) add("P3", `$.operations[${n}]`, "an operation is {seq: an integer, command: a string, args: an object}");
     });
-  if (writer && project.profile === PROFILE_ITEM_RESULTS && problems.length === 0) problems.push(...checkItemResults(project));
-  return problems;
-}
-
-/**
- * Checks the layout of the OpenAssess item results 1 profile (PSTAT-1 section 7.1). Run by checkProject.
- * @param {any} project a project that already passed the other checks
- */
-function checkItemResults(project) {
-  const problems = [];
-  const add = (path, message) => problems.push({ rule: "F1", path, message });
-  const ds = project.dataset;
-  const vars = ds.variables;
-  const cols = ds.columns;
-  if (!/^OpenAssess \S/.test(project.app_version)) add("$.app_version", "app_version is OpenAssess and the release");
-  const want = (n, name, measure, label) => {
-    const v = vars[n];
-    if (!v || v.name !== name) return add(`$.dataset.variables[${n}]`, `variable ${n + 1} must be ${name}`), false;
-    if (v.measure !== measure) add(`$.dataset.variables[${n}].measure`, `${name} is ${measure}`);
-    if (label !== undefined && v.label !== label) add(`$.dataset.variables[${n}].label`, `${name}'s label is "${label}"`);
-    if (cols[n].type !== "numeric") add(`$.dataset.columns[${n}]`, `${name} is numeric`);
-    return true;
-  };
-  if (vars.length < 4) return [{ rule: "F1", path: "$.dataset.variables", message: "the profile has sheet, version, at least one question and total" }];
-  want(0, "sheet", "nominal", "Sheet number");
-  want(1, "version", "nominal", "Version");
-  const last = vars.length - 1;
-  want(last, "total", "scale", "Total score");
-  const k = last - 2;
-  const width = Math.max(2, String(k).length);
-  for (let j = 0; j < k; j++) {
-    const n = j + 2;
-    const name = `q${String(j + 1).padStart(width, "0")}`;
-    if (!want(n, name, "scale")) continue;
-    if (vars[n].value_labels.length > 0) add(`$.dataset.variables[${n}].value_labels`, `${name} has no value labels`);
-    if (vars[n].label !== `Question ${j + 1}`) add(`$.dataset.variables[${n}].label`, `${name}'s label is "Question ${j + 1}" (its number on version A), not the question's text`);
-    if (cols[n].values.every((x) => x === null)) add(`$.dataset.columns[${n}]`, `${name} counts on no sheet, so it is left out`);
-  }
-  vars.forEach((v, n) => {
-    if (v.missing_values.length > 0 || (v.missing_ranges ?? []).length > 0) add(`$.dataset.variables[${n}]`, `${v.name} has no missing codes (every gap is null)`);
-  });
-  const rows = cols[0]?.values.length ?? 0;
-  const sheets = cols[0].values;
-  for (let r = 0; r < rows; r++) {
-    if (!isInt(sheets[r], 1)) add(`$.dataset.columns[0].values[${r}]`, "a sheet number is a whole number from 1");
-    else if (r > 0 && isInt(sheets[r - 1]) && sheets[r] <= sheets[r - 1]) add(`$.dataset.columns[0].values[${r}]`, "cases are in sheet-number order, each sheet once");
-    const version = cols[1].values[r];
-    if (!isInt(version, 1)) add(`$.dataset.columns[1].values[${r}]`, "every exported sheet has its version");
-    const total = cols[last].values[r];
-    let sum = 0;
-    for (let j = 2; j < last; j++) sum += cols[j].values[r] ?? 0;
-    if (total === null || Math.abs(total - sum) > 1e-9 * Math.max(1, Math.abs(sum))) add(`$.dataset.columns[${last}].values[${r}]`, `the total (${total}) is the points earned on the questions that count (${sum})`);
-  }
-  const versionsUsed = new Set(cols[1].values.filter((v) => isInt(v, 1)));
-  const labels = new Map(vars[1].value_labels.map((l) => [l.value, l.label]));
-  for (const v of versionsUsed) {
-    const letter = v <= 26 ? String.fromCharCode(64 + v) : undefined;
-    if (letter && labels.get(v) !== letter) add("$.dataset.variables[1].value_labels", `version ${v} is labelled ${letter}`);
-  }
-  const source = project.source;
-  if (!source) add("$.source", "the profile names its source: the test's name followed by \" results\"");
-  else {
-    if (source.file_name !== `${ds.name} results`) add("$.source.file_name", "file_name is the test's name followed by \" results\"");
-    if (source.report.rows !== rows) add("$.source.report.rows", `rows is the number of cases (${rows})`);
-    if (source.report.variables !== vars.length) add("$.source.report.variables", `variables is the number of variables (${vars.length})`);
-  }
+  if (writer && typeof project.profile === "string" && problems.length === 0) problems.push(...checkProfile(project, { part: options.part, partFractional: options.partFractional }));
   return problems;
 }
 
@@ -353,15 +290,44 @@ export function readPstat(bytes) {
 }
 
 /**
- * Writes a project as a .pstat file's bytes, after checking it with the writer rules. The same project always makes
- * the same bytes.
+ * The part of the profile a file follows (section 2), parsed, or null when its profile has no part or the file holds
+ * none. Like readPstat, it throws PstatError for a part that is not sound JSON (rule F2).
+ * @param {Uint8Array} bytes
+ * @param {any} [project] the file's project.json, when already read
+ * @returns {any}
+ */
+export function readPart(bytes, project = readPstat(bytes)) {
+  const spec = PARTS[project.profile];
+  if (!spec) return null;
+  const entry = readEntry(bytes, spec.entry);
+  if (!entry) return null;
+  try {
+    return parsePart(entry).value;
+  } catch (e) {
+    throw new PstatError("F2", `${spec.entry} is not sound JSON: ${e.message}`);
+  }
+}
+
+function parsePart(entry) {
+  if (entry[0] === 0xef && entry[1] === 0xbb && entry[2] === 0xbf) throw new SyntaxError("it starts with a byte-order mark");
+  return parseJson(new TextDecoder("utf-8", { fatal: true }).decode(entry));
+}
+
+/**
+ * Writes a project as a .pstat file's bytes, after checking it with the writer rules: project.json, then the
+ * profile's part when it has one. The same project always makes the same bytes.
  * @param {any} project
+ * @param {any} [part] the part of the profile the project names (section 2), as an object
  * @returns {Uint8Array}
  */
-export function writePstat(project) {
-  const problems = checkProject(project, { as: "writer" });
+export function writePstat(project, part) {
+  const spec = PARTS[project?.profile];
+  if (part !== undefined && !spec) throw new PstatError("Z2", `The project's profile (${project?.profile ?? "none"}) has no part, so the file holds project.json only`);
+  const problems = checkProject(project, { as: "writer", part });
   if (problems.length > 0) throw new PstatError(problems[0].rule, `The project breaks the format: ${problems.map((p) => `${p.message} at ${p.path} (${p.rule})`).join("; ")}`);
-  return writeSingleEntry(ENTRY, new TextEncoder().encode(JSON.stringify(project)));
+  const entries = [{ name: ENTRY, data: new TextEncoder().encode(JSON.stringify(project)) }];
+  if (part !== undefined) entries.push({ name: spec.entry, data: new TextEncoder().encode(JSON.stringify(part)) });
+  return writeArchive(entries);
 }
 
 /**
@@ -378,16 +344,39 @@ export function checkPstat(bytes) {
   }
   if (!entry) return [{ rule: "Z1", path: "", message: "no project.json entry" }];
   const problems = [];
-  const names = listEntries(bytes);
-  if (names.length !== 1) problems.push({ rule: "Z2", path: "", message: `a writer writes project.json as the only entry (found ${names.join(", ")})` });
-  if (entry[0] === 0xef && entry[1] === 0xbb && entry[2] === 0xbf) return [...problems, { rule: "J1", path: "", message: "project.json starts with a byte-order mark" }];
+  if (entry[0] === 0xef && entry[1] === 0xbb && entry[2] === 0xbf) return [{ rule: "J1", path: "", message: "project.json starts with a byte-order mark" }];
   let parsed;
   try {
     parsed = parseJson(new TextDecoder("utf-8", { fatal: true }).decode(entry));
   } catch (e) {
-    return [...problems, { rule: "J1", path: "", message: e.message }];
+    return [{ rule: "J1", path: "", message: e.message }];
   }
-  return [...problems, ...checkProject(parsed.value, { as: "writer", fractional: parsed.fractional })];
+  const spec = PARTS[parsed.value?.profile];
+  const allowed = [ENTRY, ...(spec ? [spec.entry] : [])];
+  const names = listEntries(bytes);
+  const extra = names.filter((n) => !allowed.includes(n));
+  if (extra.length > 0 || names.length !== new Set(names).size) problems.push({ rule: "Z2", path: "", message: `a writer writes ${allowed.join(" and ")} and no other entry (found ${names.join(", ")})` });
+  let part;
+  let partFractional;
+  if (spec) {
+    let raw;
+    try {
+      raw = readEntry(bytes, spec.entry);
+    } catch (e) {
+      problems.push({ rule: "Z2", path: spec.entry, message: e.message });
+    }
+    if (raw) {
+      try {
+        const p = parsePart(raw);
+        part = p.value;
+        partFractional = p.fractional;
+      } catch (e) {
+        problems.push({ rule: "F2", path: spec.entry, message: `${spec.entry} is not sound JSON: ${e.message}` });
+        return problems;
+      }
+    }
+  }
+  return [...problems, ...checkProject(parsed.value, { as: "writer", fractional: parsed.fractional, part, partFractional })];
 }
 
 /** The names of a ZIP archive's entries, from its central directory. */

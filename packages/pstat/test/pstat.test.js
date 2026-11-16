@@ -189,7 +189,16 @@ test("the item results profile", () => {
   assert.match(wrong((p) => (p.dataset.variables[2].missing_values = [9])).join(), /no missing codes/);
   assert.match(wrong((p) => (p.dataset.columns[3].values = [null, null, null])).join(), /counts on no sheet/);
   assert.match(wrong((p) => (p.dataset.columns[1].values[2] = null)).join(), /every exported sheet has its version/);
-  assert.match(wrong((p) => (p.dataset.variables[3].name = "q2")).join(), /must be q02/);
+  assert.match(wrong((p) => (p.dataset.variables[3].name = "q2")).join(), /same number of digits/);
+  // Section 7.1 (revision 1.1): the names carry the question's number on version A, so they may skip a question
+  // that was left out, but a name and its label always carry the same number.
+  const skipping = (p) => {
+    p.dataset.variables[3].name = "q03";
+    p.dataset.variables[3].label = "Question 3";
+  };
+  assert.deepEqual(wrong(skipping), []);
+  assert.match(wrong((p) => (p.dataset.variables[3].name = "q03")).join(), /label is "Question 3"/);
+  assert.match(wrong((p) => (p.dataset.variables[2].name = "q05")).join(), /their numbers rise/);
   assert.match(wrong((p) => (p.dataset.variables[2].label = "What is 2 + 2?")).join(), /not the question's text/);
   // Without the profile member the same layout is an ordinary project, not checked against the profile.
   const plain = itemResults();

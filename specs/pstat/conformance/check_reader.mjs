@@ -13,6 +13,7 @@ import { join, resolve } from "node:path";
 
 import { readPstat, writePstat } from "../../../packages/pstat/src/index.js";
 import { writeArchive } from "../../../packages/pstat/src/zip.js";
+import { assessment, caseTable, caseTablePart, itemResults2 } from "../examples/make_examples.mjs";
 
 const args = {};
 for (let i = 2; i < process.argv.length; i++) if (process.argv[i].startsWith("--")) args[process.argv[i].slice(2)] = process.argv[++i];
@@ -59,6 +60,10 @@ const files = [
   ["a next_id no greater than the ids (a writer rule only)", changed((p) => (p.dataset.next_id = 2)), "open"],
   ["missing ranges", changed((p) => (p.dataset.variables[1].missing_ranges = [[90, 99]])), "open"],
   ["text column", changed((p) => (p.dataset.variables.push({ id: 3, name: "site", label: "", measure: "nominal", value_labels: [], missing_values: [] }), p.dataset.columns.push({ type: "text", values: ["North", null, "Süd"] }), (p.dataset.next_id = 4))), "open"],
+  // Revision 1.1: a profile's part is one more entry, which a reader of 1.0 already ignores (Z3).
+  ["item results 2, with assessment.json (section 7.2)", writePstat(itemResults2(), assessment()), "open"],
+  ["a PrismQDA case table, with case-table.json (section 7.3)", writePstat(caseTable(), caseTablePart()), "open"],
+  ["a part that is not JSON (only the writer is wrong)", writeArchive([{ name: "project.json", data: json(itemResults2()) }, { name: "assessment.json", data: json("{ not json").subarray(1) }]), "open"],
   ["not a ZIP archive", json("not a zip"), "Z1"],
   ["Project.json, not project.json", writeArchive([{ name: "Project.json", data: json(minimal()) }]), "Z1"],
   ["a byte-order mark", writeArchive([{ name: "project.json", data: new Uint8Array([0xef, 0xbb, 0xbf, ...json(minimal())]) }]), "J1"],

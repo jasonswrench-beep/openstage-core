@@ -1,0 +1,5 @@
+prismqda-stats
+Copyright 2026 Jason S. Wrench and the PrismQDA contributors
+
+This crate was moved from the PrismQDA repository (crates/prismqda-stats, commit 56a161e) into openstage-core on
+2026-11-15, unchanged apart from its Cargo.toml, so that PrismQDA and PrismStatistics depend on one copy.
