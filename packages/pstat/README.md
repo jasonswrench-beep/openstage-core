@@ -1,6 +1,6 @@
 # @openstage/pstat
 
-Read, write and check `.pstat` project files: format 1, spec revision 1.1 ([PSTAT-1](../../specs/pstat/PSTAT-1.md)).
+Read, write and check `.pstat` project files: format 1, spec revision 1.2 ([PSTAT-1](../../specs/pstat/PSTAT-1.md)).
 No dependencies; Node 22.2 or later.
 
 ```js

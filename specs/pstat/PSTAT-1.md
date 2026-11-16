@@ -1,6 +1,6 @@
 # The .pstat project file, format 1
 
-**Spec revision 1.1, 2026-11-15. Status: locked.**
+**Spec revision 1.2, 2026-11-15. Status: locked.**
 
 A `.pstat` file is a PrismStatistics project: one dataset with its variables, labels and missing codes, where the data
 came from, and PrismStatistics's record of the analyses run on it and their results. PrismStatistics has written this
@@ -214,9 +214,15 @@ holds, except that `profile` is `OpenAssess item results 2`; then:
        (`B`, `AC`). A true/false question is `A` for True and `B` for False.
      - `""` when the sheet was left blank on that question. `null` exactly where the `q` cell is `null`.
      - Several letters on a one-answer question are written as marked (`AB`); such an answer earns nothing.
-  2. **`student_id`**, optional and **off by default**: text, `nominal`, label `Student ID`. An id the instructor
-     typed or imported for each sheet, written only when the person chose to include it; `null` for a sheet without
-     one. Never a name. A writer with no ids writes no such variable.
+  2. **`student_id`**, optional: text, `nominal`, label `Student ID`. The student's id for each sheet, as the
+     instructor typed or imported it; `null` for a sheet without one. A writer that holds no ids writes no such
+     variable.
+  3. **`student_name`**, optional: text, `nominal`, label `Student name`. The student's name for each sheet, as the
+     instructor typed or imported it; `null` for a sheet without one. A writer that holds no names writes no such
+     variable.
+
+  A writer that holds ids or names writes them, and MAY let the person leave them out. The file stays on the
+  instructor's computer unless the instructor sends it somewhere.
 - **The part `assessment.json`** (section 2) is required:
 
 ```json
@@ -286,7 +292,7 @@ A **key entry**:
 6. One answer (`multiple_choice`, `true_false`): `points` when *s* is one letter that is in `correct`, otherwise 0.
 
 A writer whose scoring differs from this rule MUST NOT write profile 2. Never written: a question's text, its options'
-text, feedback, the question's author, the students' names and the scanned pictures.
+text, feedback, the question's author and the scanned pictures.
 
 **For PrismStatistics's key.** Its typed key maps directly: `correct` is the list of alternatives (`D/B`, `AC`),
 `dropped` is `-` and `credit_all` is `*`. Partial credit and a key that differs by version have no equivalent there;
@@ -436,6 +442,9 @@ PrismStatistics's message for a newer file names the program that wrote it ("Thi
 
 ## 10. Changes
 
+- **1.2 (2026-11-15).** Profile 2 may carry the students' names (`student_name`) beside their ids, and neither is off
+  by default any more: a writer that holds them writes them, and may let the person leave them out. The author's
+  decision; the files stay on the instructor's computer.
 - **1.1 (2026-11-15).** Nothing a reader of 1.0 does changes.
   - Section 2: a profile may add one more entry, a **part**, which refers to variables by `id`; rule Z2 allows it,
     and Z4 asks a reader that keeps `profile` to keep the part too.

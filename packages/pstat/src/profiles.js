@@ -163,7 +163,7 @@ function itemResults2(w, { totalAt, questions, width, rows, versionsUsed }) {
   const vars = project.dataset.variables;
   const cols = project.dataset.columns;
 
-  // After total: the answer variables (all or none), then student_id (optional), then nothing.
+  // After total: the answer variables (all or none), then student_id and student_name (each optional), then nothing.
   let n = totalAt + 1;
   const answers = new Map(); // question number -> column index
   if (vars[n] && /^r\d+$/.test(vars[n].name)) {
@@ -188,12 +188,13 @@ function itemResults2(w, { totalAt, questions, width, rows, versionsUsed }) {
       n++;
     }
   }
-  if (vars[n] && vars[n].name === "student_id") {
+  for (const [name, label] of [["student_id", "Student ID"], ["student_name", "Student name"]]) {
+    if (!vars[n] || vars[n].name !== name) continue;
     const v = vars[n];
-    if (v.measure !== "nominal" || v.label !== "Student ID" || cols[n].type !== "text" || v.value_labels.length > 0) add(`$.dataset.variables[${n}]`, 'student_id is text, nominal, labelled "Student ID", with no value labels');
+    if (v.measure !== "nominal" || v.label !== label || cols[n].type !== "text" || v.value_labels.length > 0) add(`$.dataset.variables[${n}]`, `${name} is text, nominal, labelled "${label}", with no value labels`);
     n++;
   }
-  if (n < vars.length) add(`$.dataset.variables[${n}]`, `${vars[n].name} is not part of the profile: after total come the answer variables, then student_id`);
+  if (n < vars.length) add(`$.dataset.variables[${n}]`, `${vars[n].name} is not part of the profile: after total come the answer variables, then student_id, then student_name`);
   if (problems.length > 0) return;
 
   // The part.

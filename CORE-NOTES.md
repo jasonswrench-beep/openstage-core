@@ -1,6 +1,7 @@
 # Core notes
 
-**Updated 2026-11-15 (second round, answering the OpenAssess and PrismStatistics handoffs).** Repository
+**Updated 2026-11-15 (second round, answering the OpenAssess and PrismStatistics handoffs, then the author's
+answers).** Repository
 `jasonswrench-beep/openstage-core` (private). Working folder on the author's PC: `C:\Dev\openstage-core`.
 
 This repository holds what more than one tool depends on: file formats, small packages, shared code where two tools
@@ -12,13 +13,13 @@ revision, and only then in the tools. These notes are kept current with every ch
 
 | Piece | Version | State |
 |---|---|---|
-| [.pstat format](specs/pstat/PSTAT-1.md) | format 1, spec revision **1.1** | **Locked.** New in 1.1: profile parts, `OpenAssess item results 2`, `PrismQDA case table 1`, and the `q` numbering settled. PrismStatistics opens and refuses all 33 conformance files as the spec says. |
+| [.pstat format](specs/pstat/PSTAT-1.md) | format 1, spec revision **1.2** | **Locked.** New in 1.1: profile parts, `OpenAssess item results 2`, `PrismQDA case table 1`, and the `q` numbering settled. New in 1.2: profile 2 may carry students' ids and names. PrismStatistics opens and refuses all 33 conformance files as the spec says. |
 | [Item-analysis test set](testsets/item-analysis/README.md) (C3) | set **1.1.0** | **Ready.** OpenAssess matches 512 of 512 figures (commit ca56055), PrismStatistics 1,497 of 1,497 (a build of commit 10cee4b). |
-| [`@openstage/pstat`](packages/pstat) | **1.1.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts. |
+| [`@openstage/pstat`](packages/pstat) | **1.2.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts. |
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | Packages for the capture format (C1), the accessibility rules (C2) and the bank reader (C4) | | Not started (priority 3). |
 | Author's validator: warn, never block, with opt-in blockers | | Not started (priority 4), in the Author repository. |
-| C7 source ledger, C8 local AI runtime and assistant server | | Asked for by OpenAssess; recorded, not started. They wait behind priorities 3 and 4 unless the author moves them up. |
+| C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
 
 ## The .pstat format, in short
 
@@ -43,7 +44,7 @@ The full text is [specs/pstat/PSTAT-1.md](specs/pstat/PSTAT-1.md); its section 8
 | Profile | Section | What it carries |
 |---|---|---|
 | `OpenAssess item results 1` | 7.1 | `sheet`, `version`, the points per question (`q01` ...), `total`. |
-| `OpenAssess item results 2` | 7.2 | Profile 1, then the letters marked (`r01` ...) and, if the person chose it, `student_id`; and `assessment.json`: the test (id, date given, source, versions), and for every question on version A its bank id, revision, type, options and the bank's option ids, the key (per version when it differs) and its details (objective, chapter, section, page, Bloom level, difficulty, tags). |
+| `OpenAssess item results 2` | 7.2 | Profile 1, then the letters marked (`r01` ...), the students' ids (`student_id`) and names (`student_name`) when the writer holds them; and `assessment.json`: the test (id, date given, source, versions), and for every question on version A its bank id, revision, type, options and the bank's option ids, the key (per version when it differs) and its details (objective, chapter, section, page, Bloom level, difficulty, tags). |
 | `PrismQDA case table 1` | 7.3 | `case_id`, `case_name` (unless names are left out), one variable per case attribute, and `code_<id>_present` and `code_<id>_count` per code; and `case-table.json`: the project, the export time, the codebook version, whether sub-codes count with their parent, and where each column came from. |
 
 **The `q` numbering (settled in 1.1).** A `q` variable's name and label carry the question's number on version A, with
@@ -56,11 +57,13 @@ letters in alphabetical order (`AC`); `""` is a blank and `null` is where the qu
 reproduces every point cell by the rule in section 7.2, which is OpenAssess's scoring: one answer earns the points when
 exactly one letter is marked and it is accepted; select-all needs exactly the key's letters, or with partial credit
 earns points × max(0, right − wrong) ÷ the key's letters, to the millionth; `credit_all` earns the points, `dropped`
-leaves the cell empty. Question text, option text, feedback, authors, names and pictures are never written.
+leaves the cell empty. Question text, option text, feedback, the questions' authors and scanned pictures are never
+written. Students' ids and names may be (revision 1.2, the author's decision: the files stay on the instructor's
+computer).
 
 ## Packages
 
-### `@openstage/pstat` 1.1.0
+### `@openstage/pstat` 1.2.0
 
 Folder `packages/pstat`. ES module, no dependencies, Node 22.2 or later. Types in `src/index.d.ts`.
 
@@ -164,9 +167,11 @@ Read against your handoff of 2026-11-15 and `CORE-REQUESTS.md` (as changed after
      `points`; an adjustment for some versions makes a key entry per set of versions), and the test (`id`, `name`, the
      date the person gives, `scanned sheets` or `learning system report`, `versions`, `sheets_left_out`);
    - a learning system's report: no `r` variables, types `other` where the report has no letters;
-   - `student_id`: **do not write it yet.** Whether profile 2 carries a student id at all is the author's decision
-     (TESTING-TODO). The spec allows it, off by default; if the author says no, it is removed in revision 1.2 before
-     any tool writes it.
+   - **Students' ids and names: the author says yes** (revision 1.2). After the `r` variables, `student_id` and then
+     `student_name`, each text and each optional: write them when OpenAssess holds them (today it holds neither: the
+     scores file refuses names, and a learning system's report has its personal columns counted and dropped), and you
+     may let the person leave them out. Whether OpenAssess starts keeping them, from a learning system's report or a
+     roster the instructor imports, is yours to build; nothing in the core stands in the way.
    - Test with `checkPstat` (a profile 2 file without its part, or with a point the key does not give, is refused) and
      compare your file for `letters-60` with the set's.
 3. **Set 1.1.0** passes at ca56055 (512 of 512) with no change. Two things you may add:
@@ -174,10 +179,13 @@ Read against your handoff of 2026-11-15 and `CORE-REQUESTS.md` (as changed after
      as `discrimination` has `upper` and `lower`;
    - decide what a credited question left blank counts as (you say credited, PrismStatistics blank). Tell the core,
      and a case will hold one.
-4. **Your requests 3 and 4 (C7 source ledger, C8 local AI runtime)** are recorded. Nothing to build yet: they wait
-   behind the author's priorities 3 and 4. Your rules for C8 (a model never sets a key, a suggestion is accepted by a
-   person, nothing leaves the machine unless the person turned it on) will be in its spec. On item 9's question
-   ("worth building the boxes before C8?"): that is the author's call; it is in TESTING-TODO.
+4. **Your requests 3 and 4 (C7 source ledger, C8 local AI runtime) are on the [roadmap](ROADMAP.md)**, the author's
+   word: agreed, not scheduled, nothing to build yet. Your rules for C8 (a model never sets a key, a suggestion is
+   accepted by a person, nothing leaves the machine unless the person turned it on) are written there and will be in
+   its spec.
+   **Item 9: the author says build the short-answer boxes now**, before C8: the new sheet layout with a box per short
+   answer, the box cut out upright, and a person scoring it against the rubric. The model's reading of handwriting
+   waits on C8.
 5. Alpha 27 stays held on the author's word.
 
 ## For the PrismStatistics session
@@ -197,7 +205,9 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    - item details are in `assessment.json`, by variable `id` (`points_variable`, `answer_variable`). The spec does
      not put them in labels; group by them as you like;
    - keep `assessment.json` byte for byte when you keep `profile` (rule Z4, a SHOULD). Today you drop every entry but
-     `project.json`.
+     `project.json`;
+   - a profile 2 file may carry `student_id` and `student_name` (revision 1.2), text, after the `r` variables:
+     `student_id` is what your item 7 (each student's before and after) can match on.
 4. **R2 is done: set 1.1.0.** Copy the whole folder again (still `-text`) and extend `c3_reference.rs` to
    `item_analysis_listwise` (on the points, `scored: true`, with each question's points in the key) and to
    `answers.<q>` for `letters-60` (letter mode with the file's key). The definitions are yours (`item_analysis.rs`),
@@ -245,6 +255,9 @@ nothing outside the repository.
 
 ## Changes
 
+- **2026-11-15, the author's answers.** PSTAT-1 revision 1.2 and `@openstage/pstat` 1.2.0: profile 2 may carry
+  students' ids and names. C7 and C8 on the new [ROADMAP.md](ROADMAP.md). OpenAssess builds the short-answer boxes
+  now.
 - **2026-11-15, second round.** PSTAT-1 revision 1.1 (parts, profiles 7.2 and 7.3, the `q` numbering); test set 1.1.0
   (two cases, new figures); `@openstage/pstat` 1.1.0; `prismqda-stats` 1.0.0 moved here; `check_set.mjs` runs in a
   copy. Answers the OpenAssess requests 1 and 2 (3 and 4 recorded) and the PrismStatistics requests R1, R2, R3, R5 and

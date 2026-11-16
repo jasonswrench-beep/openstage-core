@@ -7,7 +7,7 @@ import { MAX_UNPACKED, readEntry, writeArchive, ZipError } from "./zip.js";
 export const EXTENSION = "pstat";
 export const FORMAT = "PrismStatistics project";
 export const VERSION = 1;
-export const SPEC_REVISION = "1.1";
+export const SPEC_REVISION = "1.2";
 export const ENTRY = "project.json";
 export { MAX_UNPACKED, PARTS };
 export { attributeName, attributeNames, entryFor, isAnswer, pointsFor, PROFILE_CASE_TABLE, PROFILE_ITEM_RESULTS, PROFILE_ITEM_RESULTS_2 } from "./profiles.js";

@@ -70,12 +70,23 @@ test("item results 2: what checkPstat refuses", () => {
   assert.match(wrong((p) => p.dataset.variables.push({ id: 10, name: "extra", label: "", measure: "scale", value_labels: [], missing_values: [] }) && p.dataset.columns.push({ type: "numeric", values: [1, 2, 3, 4, 5] }) && (p.dataset.next_id = 11) && (p.source.report.variables = 10)), /extra is not part of the profile/);
   // student_id, when written, is text and labelled.
   const withId = (p) => {
-    p.dataset.variables.push({ id: 10, name: "student_id", label: "Student ID", measure: "nominal", value_labels: [], missing_values: [] });
+    p.dataset.variables.push({ id: p.dataset.next_id, name: "student_id", label: "Student ID", measure: "nominal", value_labels: [], missing_values: [] });
     p.dataset.columns.push({ type: "text", values: ["1001", "1002", null, "1005", "1006"] });
-    p.dataset.next_id = 11;
-    p.source.report.variables = 10;
+    p.dataset.next_id += 1;
+    p.source.report.variables += 1;
   };
   assert.equal(wrong(withId), "");
+  // student_name (revision 1.2) after student_id, or alone; nothing after it.
+  const withName = (p) => {
+    p.dataset.variables.push({ id: p.dataset.next_id, name: "student_name", label: "Student name", measure: "nominal", value_labels: [], missing_values: [] });
+    p.dataset.columns.push({ type: "text", values: ["Ana Ruiz", "Ben Okafor", null, "Cal Ng", "Dee Park"] });
+    p.dataset.next_id += 1;
+    p.source.report.variables += 1;
+  };
+  assert.equal(wrong((p) => (withId(p), withName(p))), "");
+  assert.equal(wrong(withName), "");
+  assert.match(wrong((p) => (withName(p), withId(p))), /student_id is not part of the profile/);
+  assert.match(wrong((p) => (withName(p), (p.dataset.variables[9].label = "Name"))), /labelled "Student name"/);
   // The part.
   assert.match(wrong(() => {}, (a) => (a.questions[1].points_variable = 5)), /points_variable is the id of q02 \(4\)/);
   assert.match(wrong(() => {}, (a) => (a.questions[2].points_variable = 5)), /has no q variable/);
