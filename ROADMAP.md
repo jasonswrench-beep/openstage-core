@@ -5,6 +5,16 @@ Later work for the shared core: agreed in principle, not scheduled. The current 
 reader (C4); then priority 4, Author's validator warning instead of blocking. An item moves from here into
 CORE-NOTES when the author schedules it.
 
+## The order of the rounds (the author's word, 2026-11-15)
+
+1. **Now:** OpenAssess and PrismStatistics finish their rounds on what the core published (PSTAT-1 1.2, set 1.1.0,
+   `prismqda-stats`). Meanwhile the core does priority 3, so the next round has packages to move onto.
+2. **Next, together:** OpenExplainer, OpenStage Recorder and PrismQDA.
+   - OpenExplainer and Recorder: the capture format (C1) and the accessibility rules (C2) as core packages, once
+     priority 3 has them.
+   - PrismQDA: its section of CORE-NOTES.md (the shared statistics crate, the case-table profile, the reused ids, the
+     docs sentence, and a test set for the case table).
+
 ## C7: the source ledger (textbook passages)
 
 Asked by OpenAssess (its development list, item 7), 2026-11-15. Each question is linked to the passage of the textbook
@@ -39,3 +49,5 @@ Asked by OpenAssess (items 8 and 9), 2026-11-15; other tools have AI parts of th
 - `npm pack` tarballs of each package on the releases, installable by URL (Scroll and others).
 - PrismQDA moves from its own copy of `prismqda-stats` to the shared tag (its repository is public and cannot depend on
   a private one).
+- PrismStatistics's public copy (`prism_statistics`) likewise: it keeps the old PrismQDA pin until then, while the
+  private one already builds from the core's tag.
