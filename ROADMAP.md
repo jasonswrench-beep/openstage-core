@@ -45,6 +45,21 @@ Asked by OpenAssess (items 8 and 9), 2026-11-15; other tools have AI parts of th
 - OpenAssess item 9 (handwritten short answers read by a model and offered as suggestions) waits on it. The boxes
   themselves, cut out and scored by a person, do not, and OpenAssess builds them now.
 
+## OpenStage Recorder: captions, Send to and audio description (C5 and C1)
+
+Asked by OpenStage Recorder (its development list of 2026-11-15, items 2, 3 and 4); moved here by the author the same
+day. The Recorder builds none of the three until the core has the pieces. What it needs from each is written in
+`CORE-REQUESTS.md` in the Recorder's repository.
+
+- **Captions.** C5, the speech engine (built inside OpenStage Author today), lifted out so the tools share one install
+  of the speech models: captions made from a recording's speech on the computer, with times, for the editor to check
+  and correct. And C1: what a caption track holds in the capture format, and the WebVTT file the video maker writes
+  beside the MP4.
+- **Send to.** C1's "send to" path: one recording opened in OpenExplainer, OpenStage Studio or OpenStage Author,
+  without exporting it by hand. Today only Author reads the Recorder's recording folder.
+- **Audio description.** C5's text-to-speech, on the computer, and C1: what a description track holds, and how a
+  spoken description goes into the video's sound or a second sound file.
+
 ## Done when the repository went public (2026-11-15)
 
 - Tagged core releases with the conformance and test-set files, so a release check fetches them by tag (asked by
