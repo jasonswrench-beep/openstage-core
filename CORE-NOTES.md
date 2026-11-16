@@ -233,6 +233,25 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    `case_id`, `case_name`, the attributes (names made by `attributeName`), `code_<id>_present` and `code_<id>_count`
    with the path as label (` > ` between levels), and `case-table.json`. Write it from `stats.table` plus `data.get`
    (for the value labels and missing codes) and `project.info`. Check it with `checkPstat` from `@openstage/pstat`.
+3. **Ids can be given again, which the case table relies on not happening.** As read at PrismQDA commit 69b7ef1:
+   `code.id` is an `INTEGER PRIMARY KEY` without `AUTOINCREMENT` (`schema/v1.sql`, the `code` table), and undoing a
+   code's creation deletes the row (`crates/prismqda-engine/src/undo.rs`, `DELETE FROM code`), so SQLite may give that
+   id to the next new code. Cases are the same (`research_case.id`; undoing a case's creation, also in `undo.rs`). The
+   case table names its columns `code_<id>_present` and `code_<id>_count` and is matched on `case_id`, so a reused id
+   makes a column in a later export mean a different code, or a row a different case, with nothing to show it.
+   - PSTAT-1 section 7.3 only warns of this today.
+   - The fix is PrismQDA's to choose: `AUTOINCREMENT` (a schema change with a migration), or an undo that never frees
+     an id (keeping the row as retired, or a stored high-water mark that new ids start above).
+   - Once ids are never given again, tell the core, and the warning comes out of 7.3 in a new revision.
+4. **One wrong sentence in the developer docs.** `docs/API.md` says `stats.variables` gives one row per case. It
+   returns the variables and their summaries (`StatVariables`, `crates/prismqda-engine/src/statistics.rs`,
+   `stat_variables`). The per-case values come from `stats.table` (`stat_table`), which `docs/API.md` also describes.
+   Correct the sentence.
+5. **The case table has no test set yet.** The core has the spec (7.3), one example file
+   (`specs/pstat/examples/case-table.pstat`) and the layout checks in `checkPstat` (`packages/pstat/src/profiles.js`).
+   When you build the export, ask the core for a small set of case files to hold it and PrismStatistics's reader to.
+   Planned cases: sub-codes counted with their parent and not, a case with no documents, attributes whose names must
+   be changed, missing codes, names left out, and a code that was retired or merged.
 
 ## Rules every session keeps
 
@@ -255,6 +274,8 @@ nothing outside the repository.
 
 ## Changes
 
+- **2026-11-15, for PrismQDA.** Its section gains the reused-id risk, the `docs/API.md` sentence and the case table's
+  missing test set, so the hand-off carries what was found while writing profile 7.3.
 - **2026-11-15, the author's answers.** PSTAT-1 revision 1.2 and `@openstage/pstat` 1.2.0: profile 2 may carry
   students' ids and names. C7 and C8 on the new [ROADMAP.md](ROADMAP.md). OpenAssess builds the short-answer boxes
   now.
