@@ -128,8 +128,9 @@ full lists are in PrismStatistics's `TESTING-TODO.md` (what only a person can ch
 **Waiting on the core**
 
 - ~~**A credited question left blank**~~ and ~~**"No letters" in profile 2**~~: **settled 2026-11-16** (PSTAT-1 1.3,
-  set 2.0.0, case `credited-40`): credited, never blank, never left out; a box has no `r` variable. PrismStatistics
-  follows; what to change is in its CORE-NOTES section.
+  set 2.0.0, case `credited-40`): credited, never blank, never left out; a box has no `r` variable. **PrismStatistics
+  follows since 2026-11-16** (its commit 8d383f1): on a build, the reader check 34 of 34 and set 2.0.0 1,851 figures
+  matching, none differing.
 - **Question details** (objective, chapter, section, Bloom level, difficulty level) in `assessment.json`: **used since
   2026-11-16**, as subscores in Test Scoring and Item Analysis, offered by the banner for each detail that splits the
   questions (checked against base R). Untried on a real OpenAssess file with details filled in, since the set's files
