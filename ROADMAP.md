@@ -108,10 +108,53 @@ installed by hand and shows its release; nothing past that has been tried in it 
 - The decisions OpenAssess made without asking, listed in its `TESTING-TODO.md` under "Decisions that are mine until
   you say otherwise", each kept or reversed.
 
+## PrismStatistics: what is left after 0.2.0
+
+Put here at the author's request on 2026-11-15, after PrismStatistics 0.2.0 was published (signed, release `v0.2.0` on
+`prism_statistics`) and installed by hand. It has read PSTAT-1 1.2 and set 1.1.0 since then (core's own checks at tag
+`pstat-v1.2.0`: 33 of 33 and 1,497 of 1,497); its public copy already builds `prismqda-stats` from the core's tag. The
+full lists are in PrismStatistics's `TESTING-TODO.md` (what only a person can check) and `CORE-REQUESTS.md`.
+
+**Waiting on the core**
+
+- **A credited question left blank.** OpenAssess asks PrismStatistics to count it as credited; the set's README lists
+  it as a difference on purpose (PrismStatistics counts the answer as blank, though the points are credited). One
+  ruling in the set's README settles it, with a case that holds one; PrismStatistics follows it.
+- **"No letters" in profile 2** (OpenAssess's two rulings above): PrismStatistics reads `""` as blank today, so a
+  person-scored short answer shows as blank in its answer counts. It reads points for such questions already; the
+  ruling decides what its answer table shows.
+- **Question details** (objective, chapter, Bloom level) are kept in `assessment.json` but not yet used to group items.
+  No core change needed; a PrismStatistics feature for a later round.
+
+**PrismStatistics's own work, not yet done**
+
+- **Check for updates** (Help › Check for Updates): built 2026-11-15 and switched the same day, at the author's word, to
+  Prism Reference Manager's design, so the two match: `latest.json` on the newest full release, `previous.json` for
+  Return to the previous version (older versions only), and an optional once-a-day check, off by default. It stays
+  "not set up" until the author makes PrismStatistics's update key (`tools/make-update-key.ps1`, which asks for a
+  password) and a release is built with it. 0.2.0 has no button, so the next version is installed by hand once.
+  PrismQDA still uses the earlier design (a button only, and an `update-feed` pre-release).
+- **Windows' installed-apps entry** still read 0.1.1 after 0.2.0 was installed over it with the uninstall-and-reinstall
+  step (the program and About say 0.2.0). Cosmetic; to be watched at the next upgrade and fixed if it happens again.
+- **A Mac build**: the shell opens files from Finder and a by-hand workflow exists (`.github/workflows/macos.yml`), never
+  run. Waits for the round in which every tool gets one (the author's word).
+- **A Linux build** would pull in `glib` 0.18 (the one open Dependabot alert, moderate); Tauri's next version fixes it.
+  Not planned.
+
+**Needs a person**
+
+- Sign each validation suite (`docs/validation-signoff.md`): every row is still unsigned.
+- Testing with real students (`docs/stage0/07-user-testing-plan.md`, round R4), after checking whether an IRB/HREB
+  determination is needed.
+- An outside PDF/UA check of an exported report (veraPDF or PAC), then a screen-reader pass.
+- The window checks for this round in `TESTING-TODO.md`: Test Scoring and Item Analysis, the OpenAssess and PrismQDA
+  file banners, IRT fit tables, Training Evaluation and its blank template, a real xAPI export, an exported `.sav`
+  opened elsewhere, and the two column labels.
+
 ## Done when the repository went public (2026-11-15)
 
 - Tagged core releases with the conformance and test-set files, so a release check fetches them by tag (asked by
   PrismStatistics, R4): `pstat-v1.2.0`, `item-analysis-v1.1.0`.
 - `npm pack` files of each package on the releases, installable by URL (Scroll and others).
-- Still to do in the tools: PrismQDA moves from its own copy of `prismqda-stats` to the shared tag, and so does
-  PrismStatistics's public copy (`prism_statistics`). Both are in CORE-NOTES.
+- Still to do in the tools: PrismQDA moves from its own copy of `prismqda-stats` to the shared tag. (PrismStatistics's
+  public copy, `prism_statistics`, did so on 2026-11-15.) Both are in CORE-NOTES.
