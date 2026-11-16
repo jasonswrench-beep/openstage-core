@@ -42,12 +42,10 @@ Asked by OpenAssess (items 8 and 9), 2026-11-15; other tools have AI parts of th
 - OpenAssess item 9 (handwritten short answers read by a model and offered as suggestions) waits on it. The boxes
   themselves, cut out and scored by a person, do not, and OpenAssess builds them now.
 
-## When the repository is public
+## Done when the repository went public (2026-11-15)
 
 - Tagged core releases with the conformance and test-set files, so a release check fetches them by tag (asked by
-  PrismStatistics, R4).
-- `npm pack` tarballs of each package on the releases, installable by URL (Scroll and others).
-- PrismQDA moves from its own copy of `prismqda-stats` to the shared tag (its repository is public and cannot depend on
-  a private one).
-- PrismStatistics's public copy (`prism_statistics`) likewise: it keeps the old PrismQDA pin until then, while the
-  private one already builds from the core's tag.
+  PrismStatistics, R4): `pstat-v1.2.0`, `item-analysis-v1.1.0`.
+- `npm pack` files of each package on the releases, installable by URL (Scroll and others).
+- Still to do in the tools: PrismQDA moves from its own copy of `prismqda-stats` to the shared tag, and so does
+  PrismStatistics's public copy (`prism_statistics`). Both are in CORE-NOTES.

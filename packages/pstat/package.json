@@ -4,6 +4,12 @@
   "description": "Read, write and check .pstat project files (format 1, specs/pstat/PSTAT-1.md). No dependencies.",
   "license": "Apache-2.0",
   "author": "Jason S. Wrench",
+  "homepage": "https://github.com/jasonswrench-beep/openstage-core/tree/main/packages/pstat",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonswrench-beep/openstage-core.git",
+    "directory": "packages/pstat"
+  },
   "type": "module",
   "exports": {
     ".": {

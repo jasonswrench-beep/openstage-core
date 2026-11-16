@@ -12,8 +12,7 @@ Everything else is checked by the scripts (`node tools/check_all.mjs`, and the t
 - [ ] **Decide the two labels.** The test set asks OpenAssess to show "Point-biserial (total includes the question)" and
   PrismStatistics "Corrected item-total r (total leaves the item out)". Change the wording here first if you want
   other words.
-- [ ] **Decide when this repository goes public.** It is private, so Scroll (a public repository) and others cannot yet
-  install its packages from a URL. Making it public is a GitHub setting only you change.
+- [x] **When this repository goes public.** Done by the author on 2026-11-15.
 - [ ] **Optional: a second, independent check of the figures.** The reference values come from R 4.6.1 on this PC. If
   you have another statistics program at hand, its reliability output for one case (`class-40`: alpha 0.6131,
   `reliability_listwise.alpha` in `reference.json`) would confirm them from outside R.
@@ -29,6 +28,6 @@ Everything else is checked by the scripts (`node tools/check_all.mjs`, and the t
   rubric; reading handwriting with a model waits on C8.
 - [x] **When to take C7 (source ledger) and C8 (local AI runtime).** Answered 2026-11-15: on the roadmap, not
   pressing. They are in ROADMAP.md.
-- [ ] **PrismQDA keeps its own copy of the statistics crate** until this repository is public, because its own
+- [x] (Settled by going public.) **PrismQDA keeps its own copy of the statistics crate** until this repository is public, because its own
   repository is public and cannot depend on a private one. Going public settles this, R4 (tagged releases) and
   installing `@openstage/pstat` by URL.

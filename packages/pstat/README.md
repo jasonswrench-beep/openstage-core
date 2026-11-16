@@ -1,6 +1,10 @@
 # @openstage/pstat
 
-Read, write and check `.pstat` project files: format 1, spec revision 1.2 ([PSTAT-1](../../specs/pstat/PSTAT-1.md)).
+Read, write and check `.pstat` project files: format 1, spec revision 1.2 ([PSTAT-1](https://github.com/jasonswrench-beep/openstage-core/blob/main/specs/pstat/PSTAT-1.md)).
+
+```bash
+npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/pstat-v1.2.0/openstage-pstat-1.2.0.tgz
+```
 No dependencies; Node 22.2 or later.
 
 ```js

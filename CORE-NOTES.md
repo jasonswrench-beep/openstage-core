@@ -2,7 +2,8 @@
 
 **Updated 2026-11-15 (second round, answering the OpenAssess and PrismStatistics handoffs, then the author's
 answers).** Repository
-`jasonswrench-beep/openstage-core` (private). Working folder on the author's PC: `C:\Dev\openstage-core`.
+`jasonswrench-beep/openstage-core`, **public since 2026-11-15**. Working folder on the author's PC:
+`C:\Dev\openstage-core`.
 
 This repository holds what more than one tool depends on: file formats, small packages, shared code where two tools
 in the same language agreed to share it, and the test sets that keep two tools' figures the same. Per-tool sessions
@@ -19,6 +20,7 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | Packages for the capture format (C1), the accessibility rules (C2) and the bank reader (C4) | | Not started (priority 3). |
 | Author's validator: warn, never block, with opt-in blockers | | Not started (priority 4), in the Author repository. |
+| Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0` | **Published.** The package as an `npm pack` file, the test set as a zip, the crate as a tag. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
 
 ## The .pstat format, in short
@@ -78,14 +80,15 @@ Folder `packages/pstat`. ES module, no dependencies, Node 22.2 or later. Types i
 | `attributeName`, `attributeNames` | The case table's variable names for its attributes. |
 | `PROFILE_ITEM_RESULTS`, `PROFILE_ITEM_RESULTS_2`, `PROFILE_CASE_TABLE`, `PARTS`, `FORMAT`, `VERSION`, `SPEC_REVISION`, `EXTENSION` | The constants. |
 
-**Installing it.** The repository is private, so for now it is a file dependency on this PC:
+**Installing it**, from its release (no sign-in needed):
 
 ```bash
-npm install --save-dev C:/Dev/openstage-core/packages/pstat
+npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/pstat-v1.2.0/openstage-pstat-1.2.0.tgz
 ```
 
 A tool with a no-runtime-dependency rule, such as OpenAssess, keeps its own writer and uses this package only in its
-tests. Once the repository is public, each release will carry `npm pack` tarballs.
+tests. On this PC a file dependency (`npm install --save-dev C:/Dev/openstage-core/packages/pstat`) also works, but it
+follows the working folder rather than a release.
 
 ### `prismqda-stats` 1.0.0 (Rust)
 
@@ -99,9 +102,8 @@ name so that neither app changes a line of code: `use prismqda_stats::...` works
 prismqda-stats = { git = "https://github.com/jasonswrench-beep/openstage-core", tag = "prismqda-stats-v1.0.0" }
 ```
 
-- **While the repository is private**, cargo needs credentials to fetch it. Put `[net] git-fetch-with-cli = true` in
-  the app's `.cargo/config.toml`, so cargo uses git and the signed-in Git Credential Manager. A build on GitHub
-  Actions would need a token with read access to this repository.
+- The repository is public, so cargo fetches it with no credentials, on any machine and on GitHub Actions. The
+  `git-fetch-with-cli` setting the private repository needed is no longer necessary (it does no harm).
 - **The rule.** A change to the crate is made here first, with its R reference test, and gets a new tag. Each app moves
   its pin to the new tag only with its own reference tests passing. Neither app edits its own copy.
 - Its tests: `cargo test` in `crates/prismqda-stats` (also run by `node tools/check_all.mjs`). The R scripts that made
@@ -219,16 +221,22 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    correction to the request: PrismQDA's per-case values come from its `stats.table` command (`stats.variables` lists
    the variables and their summaries). Recognise the profile on opening as you planned; `case_id` is the key to match
    on, and `case-table.json` says where each column came from.
-7. **R4** (tagged core releases for the conformance files) waits on the repository going public, the author's call.
+7. **R4 is done: the core is public and tagged.** A release check can fetch the conformance and test-set files by tag,
+   with no clone at a known path: the source archive `https://github.com/jasonswrench-beep/openstage-core/archive/refs/tags/pstat-v1.2.0.tar.gz`
+   (unpack, then `node specs/pstat/conformance/check_reader.mjs --prism <build>`), or the set alone,
+   `https://github.com/jasonswrench-beep/openstage-core/releases/download/item-analysis-v1.1.0/item-analysis-1.1.0.zip`.
+   **Your public copy (`prism_statistics`) can now use the core's tag** `prismqda-stats-v1.0.0`, the same line as the
+   private one; anyone can build it.
 8. In your copy's `check_prismstatistics.mjs`, the note that item means, SDs and difficulty are not computed is out
    of date; the set 1.1.0 checker checks them.
 
 ## For the PrismQDA session
 
 1. **The statistics crate moved here** (`crates/prismqda-stats`, tag `prismqda-stats-v1.0.0`), at your commit 56a161e.
-   From now on a change to it is made here first. PrismQDA's repository is public, so it **keeps its own copy until
-   this repository is public too** (a public repository cannot depend on a private one for people building it); then
-   switch to the tag. Until then, copy any fix made here into your copy, unchanged.
+   From now on a change to it is made here first. **This repository is public now, so switch to the tag**:
+   `prismqda-stats = { git = "https://github.com/jasonswrench-beep/openstage-core", tag = "prismqda-stats-v1.0.0" }`
+   in place of the `path` to your own copy, run your reference tests, and then remove `crates/prismqda-stats` from
+   PrismQDA. The crate kept its name, so no code changes.
 2. **Your case table has a `.pstat` profile** (PSTAT-1 section 7.3) for when you build an export to PrismStatistics:
    `case_id`, `case_name`, the attributes (names made by `attributeName`), `code_<id>_present` and `code_<id>_count`
    with the path as label (` > ` between levels), and `case-table.json`. Write it from `stats.table` plus `data.get`
@@ -274,6 +282,9 @@ nothing outside the repository.
 
 ## Changes
 
+- **2026-11-15, public.** The author made the repository public. First releases: `pstat-v1.2.0` (the package as a
+  download) and `item-analysis-v1.1.0` (the test set as a zip). PrismQDA and PrismStatistics's public copy can now
+  depend on the crate's tag; R4 is done.
 - **2026-11-15, for PrismQDA.** Its section gains the reused-id risk, the `docs/API.md` sentence and the case table's
   missing test set, so the hand-off carries what was found while writing profile 7.3.
 - **2026-11-15, the author's answers.** PSTAT-1 revision 1.2 and `@openstage/pstat` 1.2.0: profile 2 may carry
