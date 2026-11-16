@@ -1,0 +1,14 @@
+{
+  "id": "vtt-clean",
+  "about": "A captions file with nothing to find.",
+  "input": "clean.vtt",
+  "kind": "vtt",
+  "findings": [],
+  "rules": {
+    "captions-format": "pass",
+    "captions-reading": "pass"
+  },
+  "checklist": [
+    "captions-accuracy"
+  ]
+}

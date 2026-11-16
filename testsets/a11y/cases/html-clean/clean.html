@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Changing the printer</title>
+<style>
+:root { color-scheme: light dark; --fg: #1a1a1a; --bg: #ffffff; --link: #0b57d0; }
+@media (prefers-color-scheme: dark) { :root { --fg: #f0f0f0; --bg: #121212; --link: #a8c7fa; } }
+body { color: var(--fg); background: var(--bg); font: 16px/1.5 sans-serif; }
+a { color: var(--link); }
+a:focus-visible { outline: 3px solid var(--link); }
+</style>
+</head>
+<body>
+<a href="#main" id="skip">Skip to the content</a>
+<nav aria-label="Topics"><ul><li><a href="other.html">Printing a page</a></li></ul></nav>
+<main id="main">
+<h1>Changing the printer</h1>
+<p>Choose the printer before you print.</p>
+<img src="dialog.png" alt="The Print window, with the Printer list open">
+<img src="divider.png" alt="">
+<h2>Steps</h2>
+<form><label for="copies">Copies</label> <input id="copies" type="number" value="1"> <button type="button">Print</button></form>
+<table><tr><th scope="col">Key</th><th scope="col">Does</th></tr><tr><td>Ctrl+P</td><td>Opens Print</td></tr></table>
+<video controls src="steps.mp4"><track kind="captions" src="steps.vtt" srclang="en" label="English"><track kind="descriptions" src="steps-ad.vtt" srclang="en"></video>
+<p><audio controls src="intro.mp3"></audio> <a href="intro.html">Transcript of the introduction</a></p>
+</main>
+</body>
+</html>

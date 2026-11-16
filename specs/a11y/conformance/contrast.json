@@ -1,0 +1,33 @@
+{
+  "about": "Contrast cases every A11Y-1 implementation must agree on (section 3). 'ratio' is to two decimal places; an implementation's unrounded ratio must be within 0.005 of it. The first six are the values usually given for these colours; the rest were worked out by hand with the formulas of section 3.1 (see testsets/a11y/README.md for the working).",
+  "ratios": [
+    { "foreground": "#000000", "background": "#FFFFFF", "ratio": 21.0, "words": "21.0" },
+    { "foreground": "#FFFFFF", "background": "#FFFFFF", "ratio": 1.0, "words": "1.0" },
+    { "foreground": "#767676", "background": "#FFFFFF", "ratio": 4.54, "words": "4.5" },
+    { "foreground": "#777777", "background": "#FFFFFF", "ratio": 4.48, "words": "4.4" },
+    { "foreground": "#595959", "background": "#FFFFFF", "ratio": 7.0, "words": "7.0" },
+    { "foreground": "#949494", "background": "#FFFFFF", "ratio": 3.03, "words": "3.0" },
+    { "foreground": "#999999", "background": "#FFFFFF", "ratio": 2.85, "words": "2.8" },
+    { "foreground": "#AAAAAA", "background": "#FFFFFF", "ratio": 2.32, "words": "2.3" },
+    { "foreground": "#555555", "background": "#222222", "ratio": 2.13, "words": "2.1" },
+    { "foreground": "#000000", "background": "#111111", "ratio": 1.11, "words": "1.1" },
+    { "foreground": "#5A5A5A", "background": "#1F1F1F", "ratio": 2.39, "words": "2.3" },
+    { "foreground": "#000000", "background": "#808080", "ratio": 5.32, "words": "5.3" }
+  ],
+  "text": [
+    { "foreground": "#777777", "background": "#FFFFFF", "sizePt": 12, "weight": "normal", "status": "fail", "minimum": 4.5, "large": false },
+    { "foreground": "#767676", "background": "#FFFFFF", "sizePt": 12, "weight": "normal", "status": "pass", "minimum": 4.5, "large": false },
+    { "foreground": "#949494", "background": "#FFFFFF", "sizePt": 18, "weight": "normal", "status": "pass", "minimum": 3, "large": true },
+    { "foreground": "#949494", "background": "#FFFFFF", "sizePt": 17.99, "weight": "normal", "status": "fail", "minimum": 4.5, "large": false },
+    { "foreground": "#949494", "background": "#FFFFFF", "sizePt": 14, "weight": "bold", "status": "pass", "minimum": 3, "large": true },
+    { "foreground": "#949494", "background": "#FFFFFF", "sizePt": 13.995, "weight": "bold", "status": "fail", "minimum": 4.5, "large": false },
+    { "foreground": "#949494", "background": "#FFFFFF", "sizePt": 15, "weight": "unknown", "status": "needs-review", "minimum": 4.5, "large": false, "variant": "uncertain-bold" },
+    { "foreground": "#999999", "background": "#FFFFFF", "sizePt": 15, "weight": "unknown", "status": "fail", "minimum": 4.5, "large": false },
+    { "foreground": "#767676", "background": "#FFFFFF", "sizePt": 15, "weight": "unknown", "status": "pass", "minimum": 4.5, "large": false }
+  ],
+  "blend": [
+    { "top": "rgba(0, 0, 0, 0.5)", "under": "#FFFFFF", "result": "#808080" },
+    { "top": "rgba(0, 0, 0, 0.5)", "under": "#222222", "result": "#111111" },
+    { "top": "#FF000080", "under": "#FFFFFF", "result": "#FF7F7F" }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "vtt-reading",
+  "about": "Captions that are hard to read in time: a line of 59 characters, a caption of three lines, 34 characters in one second, and a caption that starts before the one before it ends.",
+  "input": "reading.vtt",
+  "kind": "vtt",
+  "findings": [
+    {
+      "rule": "captions-reading",
+      "status": "needs-review",
+      "key": "captions-reading reading.vtt#line=4",
+      "variant": "line",
+      "params": {
+        "length": "59",
+        "limit": "42"
+      }
+    },
+    {
+      "rule": "captions-reading",
+      "status": "needs-review",
+      "key": "captions-reading reading.vtt#line=8",
+      "variant": "lines",
+      "params": {
+        "lines": "3",
+        "limit": "2"
+      }
+    },
+    {
+      "rule": "captions-reading",
+      "status": "needs-review",
+      "key": "captions-reading reading.vtt#line=14",
+      "params": {
+        "rate": "34.0",
+        "limit": "20"
+      }
+    },
+    {
+      "rule": "captions-reading",
+      "status": "needs-review",
+      "key": "captions-reading reading.vtt#line=18",
+      "variant": "overlap"
+    }
+  ],
+  "rules": {
+    "captions-format": "pass",
+    "captions-reading": "needs-review"
+  }
+}

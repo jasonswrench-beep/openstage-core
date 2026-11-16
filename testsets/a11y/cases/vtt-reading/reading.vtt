@@ -1,0 +1,19 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.000
+This caption line is much longer than forty-two characters.
+
+2
+00:00:02.000 --> 00:00:04.000
+One
+Two
+Three
+
+3
+00:00:04.000 --> 00:00:05.000
+Far too many words for one second.
+
+4
+00:00:04.500 --> 00:00:07.000
+Overlaps the one before.

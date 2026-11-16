@@ -1,0 +1,22 @@
+[
+  "html-clean",
+  "html-pictures",
+  "html-headings",
+  "html-names",
+  "html-ids",
+  "html-contrast",
+  "html-media",
+  "html-tables",
+  "html-lang-title",
+  "html-no-lang",
+  "site",
+  "epub-clean",
+  "epub-problems",
+  "docx-clean",
+  "docx-problems",
+  "pptx-problems",
+  "vtt-clean",
+  "vtt-reading",
+  "vtt-broken",
+  "pdf-not-yet"
+]

@@ -1,0 +1,77 @@
+{
+  "id": "html-media",
+  "about": "Media and time: a video with no captions, videos with no description track (needs review), sound that plays by itself, sound with no transcript near it, an embedded video whose captions cannot be checked, a page that moves on after 30 seconds and a marquee.",
+  "input": "media.html",
+  "findings": [
+    {
+      "rule": "captions-missing",
+      "status": "fail",
+      "key": "captions-missing media.html#id=v-bare"
+    },
+    {
+      "rule": "captions-missing",
+      "status": "needs-review",
+      "key": "captions-missing media.html#id=yt",
+      "variant": "embedded"
+    },
+    {
+      "rule": "audio-description",
+      "status": "needs-review",
+      "key": "audio-description media.html#id=v-bare"
+    },
+    {
+      "rule": "audio-description",
+      "status": "needs-review",
+      "key": "audio-description media.html#id=v-cap"
+    },
+    {
+      "rule": "media-autoplay",
+      "status": "fail",
+      "key": "media-autoplay media.html#id=a-auto",
+      "params": {
+        "what": "sound"
+      }
+    },
+    {
+      "rule": "transcript-missing",
+      "status": "needs-review",
+      "key": "transcript-missing media.html#id=a-auto"
+    },
+    {
+      "rule": "transcript-missing",
+      "status": "needs-review",
+      "key": "transcript-missing media.html#id=a-plain"
+    },
+    {
+      "rule": "timed-content",
+      "status": "fail",
+      "key": "timed-content media.html#id=refresh",
+      "variant": "refresh",
+      "params": {
+        "seconds": "30"
+      }
+    },
+    {
+      "rule": "timed-content",
+      "status": "fail",
+      "key": "timed-content media.html#id=mq",
+      "variant": "moving",
+      "params": {
+        "element": "marquee"
+      }
+    }
+  ],
+  "rules": {
+    "captions-missing": "fail",
+    "audio-description": "needs-review",
+    "media-autoplay": "fail",
+    "transcript-missing": "needs-review",
+    "timed-content": "fail"
+  },
+  "checklist": [
+    "reading-order",
+    "color-only",
+    "captions-accuracy",
+    "flashing"
+  ]
+}

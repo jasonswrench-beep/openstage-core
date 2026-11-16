@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Colours</title>
+<style>
+body { color: #777777; background: #ffffff; }
+.large { font-size: 24px; color: #949494; }
+.boldish { font-size: 19px; font-weight: bold; color: #949494; }
+.smallbold { font-size: 18px; font-weight: 700; color: #949494; }
+.photo { background: url(sky.jpg); color: #333333; }
+.tint { background-color: rgba(0, 0, 0, 0.5); color: #000000; }
+.ok { color: #595959; }
+@media (prefers-color-scheme: dark) { body { color: #555555; background: #222222; } .ok { color: #cccccc; } }
+@media print { body { color: #cccccc; } }
+@media (max-width: 600px) { body { color: #000000; } }
+</style>
+</head>
+<body>
+<main>
+<p id="grey">Grey text, 4.48 to 1.</p>
+<p>More grey text.</p>
+<p id="large" class="large">Large light text</p>
+<p id="boldish" class="boldish">Bold text of 14.25 points</p>
+<p id="smallbold" class="smallbold">Bold text of 13.5 points</p>
+<p id="photo" class="photo">Text on a picture</p>
+<p id="tint" class="tint">Black on a half-black tint</p>
+<p id="ok" class="ok">Dark grey text, 7 to 1</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{
+  "id": "html-names",
+  "about": "Names, links and the keyboard: an empty button, a field with no label, an empty link, two vague links, a div button with no key handler, a span that only reacts to a click, a link taken out of the Tab order, a positive tabindex and a misspelt role.",
+  "input": "names.html",
+  "findings": [
+    {
+      "rule": "control-name",
+      "status": "fail",
+      "key": "control-name names.html#id=b-empty",
+      "params": {
+        "role": "button"
+      }
+    },
+    {
+      "rule": "control-name",
+      "status": "fail",
+      "key": "control-name names.html#id=i-none",
+      "params": {
+        "role": "text field"
+      }
+    },
+    {
+      "rule": "link-name",
+      "status": "fail",
+      "key": "link-name names.html#id=l-empty"
+    },
+    {
+      "rule": "link-vague",
+      "status": "needs-review",
+      "key": "link-vague names.html#id=l-here",
+      "params": {
+        "text": "click here"
+      }
+    },
+    {
+      "rule": "link-vague",
+      "status": "needs-review",
+      "key": "link-vague names.html#id=l-more",
+      "params": {
+        "text": "Read more…"
+      }
+    },
+    {
+      "rule": "keyboard-operate",
+      "status": "needs-review",
+      "key": "keyboard-operate names.html#id=d-btn"
+    },
+    {
+      "rule": "keyboard-reach",
+      "status": "fail",
+      "key": "keyboard-reach names.html#id=s-click",
+      "params": {
+        "what": "span element"
+      }
+    },
+    {
+      "rule": "keyboard-reach",
+      "status": "needs-review",
+      "key": "keyboard-reach names.html#id=l-out",
+      "variant": "removed",
+      "params": {
+        "what": "link"
+      }
+    },
+    {
+      "rule": "focus-order",
+      "status": "needs-review",
+      "key": "focus-order names.html#id=l-pos",
+      "params": {
+        "tabindex": "3"
+      }
+    },
+    {
+      "rule": "role-unknown",
+      "status": "fail",
+      "key": "role-unknown names.html#id=r-bad",
+      "params": {
+        "role": "buton"
+      }
+    }
+  ],
+  "rules": {
+    "control-name": "fail",
+    "link-name": "fail",
+    "link-vague": "needs-review",
+    "keyboard-reach": "fail",
+    "keyboard-operate": "needs-review",
+    "focus-order": "needs-review",
+    "role-unknown": "fail",
+    "id-reference": "pass"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "html-headings",
+  "about": "Headings: the first is level 2, a level is skipped, one is empty. A role=heading with aria-level and a heading whose only content is a described picture are fine.",
+  "input": "headings.html",
+  "findings": [
+    {
+      "rule": "heading-start",
+      "status": "fail",
+      "key": "heading-start headings.html#id=first",
+      "params": {
+        "level": "2"
+      }
+    },
+    {
+      "rule": "heading-order",
+      "status": "fail",
+      "key": "heading-order headings.html#id=skip",
+      "params": {
+        "level": "4",
+        "previous": "2",
+        "expected": "3"
+      }
+    },
+    {
+      "rule": "heading-empty",
+      "status": "fail",
+      "key": "heading-empty headings.html#id=empty"
+    }
+  ],
+  "rules": {
+    "heading-start": "fail",
+    "heading-order": "fail",
+    "heading-empty": "fail",
+    "role-unknown": "pass"
+  }
+}

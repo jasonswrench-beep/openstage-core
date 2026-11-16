@@ -1,7 +1,6 @@
 # Core notes
 
-**Updated 2026-11-15 (second round, answering the OpenAssess and PrismStatistics handoffs, then the author's
-answers).** Repository
+**Updated 2026-11-16 (priority 3, second part: the accessibility rules, A11Y-1).** Repository
 `jasonswrench-beep/openstage-core`, **public since 2026-11-15**. Working folder on the author's PC:
 `C:\Dev\openstage-core`.
 
@@ -19,7 +18,8 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [`@openstage/pstat`](packages/pstat) | **1.2.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts. |
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | [Capture format](specs/capture/README.md) (C1) | schema 0.2.5; crates 0.1.0, tag `capture-v0.1.0` | **Rust code and format documents moved here** (priority 3, first part); 724 tests pass. The TypeScript editing code has two drifted copies and moves here after they are merged, in the Recorder round. |
-| Packages for the accessibility rules (C2) and the bank reader (C4) | | Not started (priority 3). |
+| [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
+| Package for the bank reader (C4) | | Not started (priority 3, last part). |
 | Author's validator: warn, never block, with opt-in blockers | | Not started (priority 4), in the Author repository. |
 | Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0` | **Published.** The package as an `npm pack` file, the test set as a zip, the crate as a tag. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
@@ -124,6 +124,42 @@ openstage-capture-project = { git = "https://github.com/jasonswrench-beep/openst
 
 The same line, with the crate's name, for `-render`, `-windows` and the others. The rule is the statistics crate's: a
 change is made here first and gets a new tag, and each app moves its pin only with its own tests passing.
+
+## The accessibility rules (C2), A11Y-1 revision 1.0
+
+[A11Y-1](specs/a11y/A11Y-1.md) is one set of rules for every tool: stable rule ids (`alt-missing`, `contrast-text`,
+...), each mapped to the WCAG 2.1 AA success criteria it serves, with its words (title, message, what to do) in
+[`specs/a11y/rules.json`](specs/a11y/rules.json); the statuses pass, fail, needs review, not tested and not
+applicable, always shown with a word or a word and a symbol; one contrast arithmetic (section 3); one report (section
+4); and one project setting (section 5).
+
+**Warn, never block.** A project file keeps `accessibilityChecks: { ignored, ignoredFindings, blockers }`. Every list
+is empty unless the author fills it; with it missing or empty nothing blocks. Only a finding that fails blocks, and
+only for a rule the author made a blocker; `needs-review` never blocks.
+
+Each tool checks two kinds of thing:
+
+- **Its own project** (objects, pictures, steps): with its own code, using the catalogue's ids and words.
+  `@openstage/a11y` (JavaScript, no dependencies) has the catalogue, the status words, contrast, `finding()`, the
+  settings and the summary line for an editor.
+- **What it made**: the engine `openstage-a11y` (Rust library and command-line program) checks a web page, a folder of
+  pages, an EPUB, a Word or PowerPoint file and a WebVTT file. PDFs are reported not tested for now (section 6.6).
+
+```toml
+openstage-a11y = { git = "https://github.com/jasonswrench-beep/openstage-core", tag = "a11y-v0.1.0" }
+```
+
+```bash
+openstage-a11y check guide.html --project project.json     # in words; --json for the report
+```
+
+The test set ([`testsets/a11y`](testsets/a11y/README.md)) has 20 cases with the findings worked out by hand;
+`node testsets/a11y/check/check_engine.mjs --engine <program>` checks any program that prints an A11Y-1 report. The
+engine was also run, read-only, on files the tools have made (a PowerPoint and two Word files in the Author and Guide
+folders, OpenExplainer's and the Recorder's web pages): no crash, each in a fraction of a second. What that run
+showed was fixed: a focus rule was flagged although the box around the field shows focus with `:focus-within` (now
+not reported, and a case in the set), and print and forced-colours rules were listed as limits (now left out). A page
+whose content a script builds is judged on the file as it is, and the report now says so in its limits.
 
 ## The item-analysis test set (C3), set 1.1.0
 
@@ -288,6 +324,36 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    Author session, and become one package both use.
 3. **The `repository` line in your `capture/Cargo.toml` names an old test repository** whose name includes an
    assistant's name, in a public repository. The core's copy names `openstage-core`; yours goes when you switch.
+4. **The accessibility rules (C2) are ready** for your round: [A11Y-1](specs/a11y/A11Y-1.md) and the engine at tag
+   `a11y-v0.1.0`. What fits the Recorder: run `openstage-a11y` on the WebVTT file beside each MP4 (`captions-format`,
+   `captions-reading`: more than 42 characters a line, more than 2 lines, more than 20 characters a second, overlaps)
+   and show the summary line in the export; report a video with no captions as `captions-missing` and one with no
+   description track as `audio-description` (needs review), with the catalogue's words. Keep `accessibilityChecks` in
+   the recording project if you offer blockers (empty by default).
+
+## For the OpenExplainer session (the next round)
+
+1. **The accessibility rules (C2) are what your `CORE-REQUESTS.md` item 2 asked for**: A11Y-1, the engine at tag
+   `a11y-v0.1.0`, and `@openstage/a11y` 0.1.0. Answers, point by point:
+   - A package with no runtime dependencies that takes an output and returns findings: the engine is a Rust crate
+     (dependencies `serde`, `serde_json`, `flate2`, which your `src-tauri` already has) and a program; it checks your
+     help site (a folder), EPUB 3 and Word file. The tagged PDF is not read yet (section 6.6). `@openstage/a11y` is
+     the no-dependency JavaScript part for the editor.
+   - A finding with a stable rule id, the WCAG 2.1 AA criterion, a status in PDF Remediator's words, where it is, a
+     plain sentence and what to do: section 4.2, with a key for ignoring one place.
+   - Warn, never block, and opt-in blockers for the author's own project: section 5 fixes the member,
+     `accessibilityChecks: { ignored, ignoredFindings, blockers }`, empty by default. Your project's ignored kinds
+     move into `ignored` with the A11Y-1 ids (section 8 maps them), in a format version with a migration.
+   - The rules you named are all in the catalogue (alt text present and not weak, heading order, focus order and
+     keyboard, captions, contrast, link text, timed content, page language, title, names on controls, the skip link,
+     landmarks, ids used once); reading order and what descriptions say are checks for a person (the checklist).
+   - A conformance set: `testsets/a11y`, 20 cases; send the core a small help site and EPUB of your own if you want
+     cases made from them.
+2. Section 8 lists how your book check's accessibility kinds map to the A11Y-1 ids. Your other kinds (empty topics,
+   missing files, variables) stay yours.
+3. Two things the engine leaves to you: the skip link's working (that the first Tab reaches it and it moves the
+   keyboard) and the Tab stops' visible focus are browser checks; keep your `tools/a11y` machine checks for those
+   until the engine has a browser part, and report them with the catalogue's ids (`bypass-blocks`, `focus-visible`).
 
 ## For the OpenStage Author session
 
@@ -299,13 +365,24 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
 3. The editing code (`capture-edit`, `capture-timeline`) is merged with the Recorder's in its round; see the Recorder
    section.
 4. Priority 4 (your validator: warn, never block, with opt-in blockers) is the core's next piece of work in your
-   repository.
+   repository. It now has its rules: A11Y-1 section 5 is the setting (`accessibilityChecks`, empty by default) and
+   section 8 maps your validator's accessibility ids to the shared ones (`alt-text-missing` to `alt-missing`,
+   `click-without-key` to `keyboard-operate`, `tab-order-duplicate` to `focus-order`, and so on). One difference to
+   settle in that round: your large-text cut-off is 18.66px bold, A11Y-1's is 14 points (18.67px).
 
 ## For the Capture Express session
 
 1. You pin three capture crates to OpenStage Author's repository (commit 4c8d23f). The same code is in the core at tag
    `capture-v0.1.0`: change the three `git` lines to the core with that tag (same crate names, no code changes), run
    your checks, and from then on take capture fixes from the core.
+2. **The accessibility rules (C2) answer your `CORE-REQUESTS.md` item 2**: a Rust crate, `openstage-a11y` at tag
+   `a11y-v0.1.0` (dependencies `serde`, `serde_json`, `flate2`, all already in your lock file; no Node, no network).
+   It reads your single-page web page (pictures as `data:` addresses are fine), the `.docx` and the `.pptx`, and
+   returns the findings you listed (rule, WCAG 2.1 AA criterion, PDF Remediator's status words, where, a sentence and
+   what to do). `Report::summary_line("Web page")` gives "Web page: 0 failures, 2 to review, 3 checks for a person".
+   The tagged PDF is reported not tested for now (A11Y-1 section 6.6); keep your PDF audit until it is read.
+   Blockers: `Settings` reads `accessibilityChecks` from a project's JSON; empty by default.
+3. Send the core the demo guide's web page, PDF and Word file when you want them made into cases of the test set.
 
 ## Rules every session keeps
 
@@ -323,10 +400,18 @@ node tools/check_all.mjs
 ```
 
 This runs each package's tests, the test set's own check, `readPstat` against the conformance files, the spec's
-example files and `cargo test` for each crate (skipped when cargo is not on the PATH, or with `--no-rust`). It needs
-nothing outside the repository.
+example files, the A11Y-1 catalogue's copies and the accessibility test set's checksums, and `cargo test` for each
+crate (the accessibility engine's run of its 20 cases among them; skipped when cargo is not on the PATH, or with
+`--no-rust`). It needs nothing outside the repository.
 
 ## Changes
+
+- **2026-11-16, accessibility rules (priority 3, second part).** A11Y-1 revision 1.0 (`specs/a11y`): the catalogue
+  (36 machine rules, 6 checks for a person), statuses, contrast, the report and the project setting
+  (`accessibilityChecks`, empty by default, so nothing blocks unless the author chooses). The engine `openstage-a11y`
+  0.1.0 (tag `a11y-v0.1.0`) for web pages, help sites, EPUB, Word, PowerPoint and WebVTT; `@openstage/a11y` 0.1.0 for
+  editors; the test set of 20 cases and the shared contrast cases. Notes for OpenExplainer, the Recorder, Capture
+  Express and Author.
 
 - **2026-11-15, capture (priority 3, first part).** The capture code (six Rust crates, schema 0.2.5) and its format
   documents moved here from OpenStage Author, with the shared `edit.json` examples; tag `capture-v0.1.0`; 724 tests

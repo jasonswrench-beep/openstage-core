@@ -17,6 +17,26 @@ Everything else is checked by the scripts (`node tools/check_all.mjs`, and the t
   you have another statistics program at hand, its reliability output for one case (`class-40`: alpha 0.6131,
   `reliability_listwise.alpha` in `reference.json`) would confirm them from outside R.
 
+## The accessibility rules, A11Y-1 (2026-11-16)
+
+- [ ] **Read the rules' words.** `specs\a11y\rules.json` holds every rule's title, message
+  and what to do, and `crates\openstage-a11y\target\debug\openstage-a11y.exe rules` lists them. They are what
+  every tool will show a person, so change any wording there first (then run `node tools\sync_a11y_rules.mjs`).
+- [ ] **Keep or change the choices made without asking** (A11Y-1 says each one):
+  - only a finding that fails can block, never one that needs review; a blocker rule is not hidden by "ignore this
+    rule", but one place of it can be ignored;
+  - captions need review over 42 characters a line, over 2 lines, or over 20 characters a second;
+  - a link that says only "click here", "read more", "here" and the like needs review (not a failure, since the
+    sentence around it may say where it goes);
+  - a picture whose description is "image", "photo", "logo", its file name and the like fails;
+  - Word's Title style counts as a level 1 heading;
+  - a skipped heading level and a slide with no title are "practice" (good practice that serves WCAG), still shown as
+    failures;
+  - a language must be two or three letters (`en`, `en-US`), so `english` and `en_US` fail; PDF Remediator accepts
+    up to eight letters.
+- [ ] **Optional: compare with a checker you trust.** Run `openstage-a11y check <a help site or exported page>` and a
+  browser checker you use on the same page; differences are worth a case in `testsets\a11y`.
+
 ## Second round: profile 2, the case table and set 1.1.0 (2026-11-15)
 
 - [x] **Whether profile 2 may carry a student id.** Answered 2026-11-15: ids and names are both fine, since the files

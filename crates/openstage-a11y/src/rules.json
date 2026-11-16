@@ -1,0 +1,486 @@
+{
+  "catalogue": "A11Y-1",
+  "revision": "1.0",
+  "wcag": "2.1",
+  "statuses": [
+    { "id": "pass", "word": "Pass", "symbol": "✓" },
+    { "id": "fail", "word": "Fail", "symbol": "✗" },
+    { "id": "needs-review", "word": "Needs review", "symbol": "?" },
+    { "id": "not-tested", "word": "Not tested", "symbol": "○" },
+    { "id": "not-applicable", "word": "Not applicable", "symbol": "–" }
+  ],
+  "criteria": {
+    "1.1.1": { "name": "Non-text Content", "level": "A" },
+    "1.2.1": { "name": "Audio-only and Video-only (Prerecorded)", "level": "A" },
+    "1.2.2": { "name": "Captions (Prerecorded)", "level": "A" },
+    "1.2.5": { "name": "Audio Description (Prerecorded)", "level": "AA" },
+    "1.3.1": { "name": "Info and Relationships", "level": "A" },
+    "1.3.2": { "name": "Meaningful Sequence", "level": "A" },
+    "1.4.1": { "name": "Use of Color", "level": "A" },
+    "1.4.2": { "name": "Audio Control", "level": "A" },
+    "1.4.3": { "name": "Contrast (Minimum)", "level": "AA" },
+    "1.4.11": { "name": "Non-text Contrast", "level": "AA" },
+    "2.1.1": { "name": "Keyboard", "level": "A" },
+    "2.2.1": { "name": "Timing Adjustable", "level": "A" },
+    "2.2.2": { "name": "Pause, Stop, Hide", "level": "A" },
+    "2.3.1": { "name": "Three Flashes or Below Threshold", "level": "A" },
+    "2.4.1": { "name": "Bypass Blocks", "level": "A" },
+    "2.4.2": { "name": "Page Titled", "level": "A" },
+    "2.4.3": { "name": "Focus Order", "level": "A" },
+    "2.4.4": { "name": "Link Purpose (In Context)", "level": "A" },
+    "2.4.5": { "name": "Multiple Ways", "level": "AA" },
+    "2.4.6": { "name": "Headings and Labels", "level": "AA" },
+    "2.4.7": { "name": "Focus Visible", "level": "AA" },
+    "3.1.1": { "name": "Language of Page", "level": "A" },
+    "4.1.1": { "name": "Parsing", "level": "A" },
+    "4.1.2": { "name": "Name, Role, Value", "level": "A" }
+  },
+  "rules": [
+    {
+      "id": "alt-missing",
+      "kind": "machine",
+      "title": "Pictures with no description",
+      "wcag": ["1.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "This picture has no description and is not marked as decorative.",
+      "fix": "Write a short description of what the picture shows or does, or mark it as decorative if it adds nothing."
+    },
+    {
+      "id": "alt-weak",
+      "kind": "machine",
+      "title": "Descriptions that say nothing about the picture",
+      "wcag": ["1.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "This picture's description says nothing about it: \"{alt}\".",
+      "fix": "Replace the description with words that say what the picture shows or does."
+    },
+    {
+      "id": "alt-decorative-text",
+      "kind": "machine",
+      "title": "Decorative pictures that also have a description",
+      "wcag": ["1.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This picture is marked as decorative but also has a description.",
+      "fix": "Remove the description, or stop marking the picture as decorative."
+    },
+    {
+      "id": "heading-empty",
+      "kind": "machine",
+      "title": "Headings with no words",
+      "wcag": ["1.3.1", "2.4.6"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pdf"],
+      "message": "This heading has no words.",
+      "fix": "Write the heading's words, or make it ordinary text."
+    },
+    {
+      "id": "heading-order",
+      "kind": "machine",
+      "title": "Headings that skip a level",
+      "wcag": ["1.3.1", "2.4.6"],
+      "basis": "practice",
+      "checks": ["source", "html", "epub", "docx", "pdf"],
+      "message": "A level {level} heading follows a level {previous} heading, so a level is skipped.",
+      "fix": "Use level {expected} here, or change the headings so that none is skipped."
+    },
+    {
+      "id": "heading-start",
+      "kind": "machine",
+      "title": "Headings that do not start at level 1",
+      "wcag": ["1.3.1", "2.4.6"],
+      "basis": "practice",
+      "checks": ["source", "html", "epub", "docx", "pdf"],
+      "message": "The first heading is level {level}, not level 1.",
+      "fix": "Make the main heading level 1."
+    },
+    {
+      "id": "page-lang",
+      "kind": "machine",
+      "title": "Documents that do not say their language",
+      "wcag": ["3.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "The {what} does not say what language it is in.",
+      "variants": {
+        "invalid": "The {what} says its language is \"{lang}\", which is not a language tag."
+      },
+      "fix": "Set the language (such as en or en-US)."
+    },
+    {
+      "id": "page-title",
+      "kind": "machine",
+      "title": "Documents with no title",
+      "wcag": ["2.4.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "The {what} has no title.",
+      "variants": {
+        "placeholder": "The {what}'s title is a placeholder: \"{title}\"."
+      },
+      "fix": "Give it a title that says what it is about."
+    },
+    {
+      "id": "pdf-title-shown",
+      "kind": "machine",
+      "title": "PDFs that show their file name instead of their title",
+      "wcag": ["2.4.2"],
+      "basis": "requirement",
+      "checks": ["pdf"],
+      "message": "The PDF shows its file name in the title bar instead of its title.",
+      "fix": "Make the PDF with \"Display document title\" (DisplayDocTitle) turned on."
+    },
+    {
+      "id": "pdf-tagged",
+      "kind": "machine",
+      "title": "PDFs with no tags",
+      "wcag": ["1.3.1"],
+      "basis": "requirement",
+      "checks": ["pdf"],
+      "message": "The PDF has no tags, so a screen reader cannot tell headings, lists or pictures from other text.",
+      "fix": "Make the PDF again with tags turned on (a tagged PDF)."
+    },
+    {
+      "id": "control-name",
+      "kind": "machine",
+      "title": "Buttons and fields with no name",
+      "wcag": ["4.1.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This {role} has no name, so a screen reader cannot say what it is.",
+      "fix": "Give it a visible label, or a name for screen readers (aria-label)."
+    },
+    {
+      "id": "link-name",
+      "kind": "machine",
+      "title": "Links with no words",
+      "wcag": ["2.4.4", "4.1.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "This link has no words, so a screen reader cannot say where it goes.",
+      "fix": "Put words in the link that say where it goes."
+    },
+    {
+      "id": "link-vague",
+      "kind": "machine",
+      "title": "Links whose words say nothing about where they go",
+      "wcag": ["2.4.4"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx"],
+      "message": "This link says only \"{text}\", which says nothing about where it goes.",
+      "fix": "Use words that say where the link goes, such as the title of the page it opens."
+    },
+    {
+      "id": "id-duplicate",
+      "kind": "machine",
+      "title": "Ids used more than once",
+      "wcag": ["4.1.1"],
+      "basis": "requirement",
+      "checks": ["html", "epub"],
+      "message": "The id \"{id}\" is used {count} times; each id may be used only once.",
+      "fix": "Give each element its own id, and update anything that refers to it."
+    },
+    {
+      "id": "id-reference",
+      "kind": "machine",
+      "title": "References to ids that are not there",
+      "wcag": ["1.3.1", "4.1.2"],
+      "basis": "requirement",
+      "checks": ["html", "epub"],
+      "message": "{attribute} refers to \"{id}\", which is not on the page.",
+      "fix": "Point it at an element that is there, or remove the reference."
+    },
+    {
+      "id": "role-unknown",
+      "kind": "machine",
+      "title": "Roles that do not exist",
+      "wcag": ["4.1.2"],
+      "basis": "requirement",
+      "checks": ["html", "epub"],
+      "message": "The role \"{role}\" does not exist, so screen readers ignore it.",
+      "fix": "Use one of the ARIA roles, or remove the role."
+    },
+    {
+      "id": "landmark-main",
+      "kind": "machine",
+      "title": "Pages with no main part",
+      "wcag": ["1.3.1", "2.4.1"],
+      "basis": "practice",
+      "checks": ["html"],
+      "message": "The page has no main part (a main element).",
+      "fix": "Put the page's own content in a main element."
+    },
+    {
+      "id": "bypass-blocks",
+      "kind": "machine",
+      "title": "Pages with no way to skip past repeated parts",
+      "wcag": ["2.4.1"],
+      "basis": "requirement",
+      "checks": ["html"],
+      "message": "The page repeats a navigation block and has no way to skip past it: no main part, no headings and no skip link.",
+      "variants": {
+        "skip-target": "The link that skips to the content goes to \"#{id}\", which is not on the page."
+      },
+      "fix": "Add a link at the top that skips to the content, or a main element and headings."
+    },
+    {
+      "id": "contrast-text",
+      "kind": "machine",
+      "title": "Text whose colours are too close",
+      "wcag": ["1.4.3"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "{foreground} on {background} is {ratio} to 1; {size} text needs at least {minimum} to 1.",
+      "variants": {
+        "uncertain-bold": "{foreground} on {background} is {ratio} to 1, which is enough only if the text is bold, and it could not be told whether it is.",
+        "unknown-background": "The text's colour is {foreground}, but what is behind it (a picture or a gradient) could not be measured."
+      },
+      "fix": "Make the text darker or its background lighter (or the other way round) until they reach {minimum} to 1."
+    },
+    {
+      "id": "contrast-graphic",
+      "kind": "machine",
+      "title": "Marks and controls whose colours are too close",
+      "wcag": ["1.4.11"],
+      "basis": "requirement",
+      "checks": ["source"],
+      "message": "{foreground} against {background} is {ratio} to 1; a mark or a control needs at least 3 to 1.",
+      "fix": "Choose colours further apart until they reach 3 to 1."
+    },
+    {
+      "id": "keyboard-reach",
+      "kind": "machine",
+      "title": "Things that can be clicked but not reached with the keyboard",
+      "wcag": ["2.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This {what} reacts to a click but cannot be reached with the Tab key.",
+      "variants": {
+        "removed": "This {what} has been taken out of the Tab order (tabindex -1)."
+      },
+      "fix": "Use a button or a link, or make it reachable with tabindex=\"0\"."
+    },
+    {
+      "id": "keyboard-operate",
+      "kind": "machine",
+      "title": "Things that react to a click but not to a key",
+      "wcag": ["2.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This {what} reacts to a click but not to Enter or Space.",
+      "fix": "Make Enter and Space do what a click does, or use a real button."
+    },
+    {
+      "id": "focus-order",
+      "kind": "machine",
+      "title": "A Tab order that may be out of order",
+      "wcag": ["2.4.3"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This sets its own place in the Tab order (tabindex {tabindex}), which usually puts it out of order.",
+      "variants": {
+        "duplicate": "{count} things share place {order} in the Tab order, so the order between them is not fixed."
+      },
+      "fix": "Let the Tab order follow the reading order: remove the positive tabindex, or give each thing its own place."
+    },
+    {
+      "id": "focus-order-gaps",
+      "kind": "machine",
+      "title": "A Tab order with gaps",
+      "wcag": ["2.4.3"],
+      "basis": "practice",
+      "checks": ["source"],
+      "message": "The Tab order has gaps: {gaps}.",
+      "fix": "Number the Tab order 1, 2, 3 and so on with no gaps."
+    },
+    {
+      "id": "focus-visible",
+      "kind": "machine",
+      "title": "Styles that hide where the keyboard is",
+      "wcag": ["2.4.7"],
+      "basis": "requirement",
+      "checks": ["html", "epub"],
+      "message": "A style rule ({selector}) takes away the focus outline without showing focus another way.",
+      "fix": "Keep the outline, or show focus another way: a border, a shadow or a background."
+    },
+    {
+      "id": "captions-missing",
+      "kind": "machine",
+      "title": "Videos with no captions",
+      "wcag": ["1.2.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "pptx"],
+      "message": "This video has no captions.",
+      "variants": {
+        "embedded": "This embedded video keeps its captions where it is hosted, so they cannot be checked here.",
+        "unknown": "This video's captions could not be checked."
+      },
+      "fix": "Add a captions track (a WebVTT file), or turn captions on where the video is hosted."
+    },
+    {
+      "id": "transcript-missing",
+      "kind": "machine",
+      "title": "Sound with no transcript",
+      "wcag": ["1.2.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This sound has no transcript that could be found.",
+      "fix": "Put a transcript next to it, or a link to one."
+    },
+    {
+      "id": "audio-description",
+      "kind": "machine",
+      "title": "Videos with no audio description",
+      "wcag": ["1.2.5"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This video has no audio description track. If it shows things that the sound does not say, it needs one.",
+      "fix": "Add a description track, or a version of the video whose narration says what is shown."
+    },
+    {
+      "id": "media-autoplay",
+      "kind": "machine",
+      "title": "Sound that plays by itself",
+      "wcag": ["1.4.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This {what} plays sound by itself when the page opens.",
+      "fix": "Do not start it by itself, or start it muted."
+    },
+    {
+      "id": "timed-content",
+      "kind": "machine",
+      "title": "Content that moves on or ends on a timer",
+      "wcag": ["2.2.1", "2.2.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "This content moves on or ends on a timer.",
+      "variants": {
+        "refresh": "The page reloads or moves on by itself after {seconds} seconds.",
+        "moving": "A {element} element moves or blinks its text with no way to stop it."
+      },
+      "fix": "Let people turn off, extend or pause the time limit or the movement."
+    },
+    {
+      "id": "table-headers",
+      "kind": "machine",
+      "title": "Tables with no header cells",
+      "wcag": ["1.3.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "This table has no header cells, so a screen reader cannot say which row or column a cell is in.",
+      "fix": "Mark the first row (or the first column) as header cells."
+    },
+    {
+      "id": "bookmarks",
+      "kind": "machine",
+      "title": "Long documents with no contents list or bookmarks",
+      "wcag": ["2.4.5"],
+      "basis": "practice",
+      "checks": ["epub", "pdf"],
+      "message": "The {what} has no contents list or bookmarks.",
+      "fix": "Make the document with bookmarks, or a contents list, made from its headings."
+    },
+    {
+      "id": "slide-title",
+      "kind": "machine",
+      "title": "Slides with no title",
+      "wcag": ["2.4.2", "2.4.6"],
+      "basis": "practice",
+      "checks": ["source", "pptx"],
+      "message": "Slide {slide} has no title.",
+      "fix": "Give the slide a title. It can be placed off the slide if it should not be seen."
+    },
+    {
+      "id": "ebook-metadata",
+      "kind": "machine",
+      "title": "E-books that do not describe their accessibility",
+      "wcag": [],
+      "basis": "practice",
+      "checks": ["epub"],
+      "message": "The e-book does not describe its own accessibility (it has no {missing}).",
+      "fix": "Add the accessibility details to the package file: access mode, features, hazards and a summary."
+    },
+    {
+      "id": "captions-format",
+      "kind": "machine",
+      "title": "Captions files that cannot be read",
+      "wcag": ["1.2.2"],
+      "basis": "requirement",
+      "checks": ["vtt"],
+      "message": "The captions file cannot be read: {detail}.",
+      "fix": "Save the captions again as WebVTT."
+    },
+    {
+      "id": "captions-reading",
+      "kind": "machine",
+      "title": "Captions that are hard to read in time",
+      "wcag": ["1.2.2"],
+      "basis": "practice",
+      "checks": ["source", "vtt"],
+      "message": "This caption shows {rate} characters a second; more than {limit} is hard to read in time.",
+      "variants": {
+        "line": "A line of this caption is {length} characters long; more than {limit} is hard to read in time.",
+        "lines": "This caption has {lines} lines; more than {limit} covers too much of the picture.",
+        "overlap": "This caption starts before the one before it ends."
+      },
+      "fix": "Split long captions, or show each one for longer."
+    },
+    {
+      "id": "reading-order",
+      "kind": "person",
+      "title": "Check the reading order",
+      "wcag": ["1.3.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "Listen to it with a screen reader, or read it with the styles turned off, and check that everything comes in the order it is meant to be read."
+    },
+    {
+      "id": "alt-meaning",
+      "kind": "person",
+      "title": "Check what each description says",
+      "wcag": ["1.1.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "Read each picture's description with the picture in mind: does it say what the picture shows or does, in this place?"
+    },
+    {
+      "id": "color-only",
+      "kind": "person",
+      "title": "Check that colour is not the only signal",
+      "wcag": ["1.4.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "docx", "pptx", "pdf"],
+      "message": "Look for anything said only by colour, such as a red word for wrong or a green line for done, and add words, a symbol or a pattern."
+    },
+    {
+      "id": "keyboard-trial",
+      "kind": "person",
+      "title": "Try it with the keyboard alone",
+      "wcag": ["2.1.1", "2.4.3", "2.4.7"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub"],
+      "message": "Move through it with Tab, Shift+Tab, Enter, Space and the arrow keys: can everything be reached and used, in a sensible order, and can you always see where you are?"
+    },
+    {
+      "id": "captions-accuracy",
+      "kind": "person",
+      "title": "Check the captions against the sound",
+      "wcag": ["1.2.2"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "pptx", "vtt"],
+      "message": "Watch with the captions on: do they say what is said, who is speaking and the sounds that matter, in time?"
+    },
+    {
+      "id": "flashing",
+      "kind": "person",
+      "title": "Check for flashing",
+      "wcag": ["2.3.1"],
+      "basis": "requirement",
+      "checks": ["source", "html", "epub", "pptx", "vtt"],
+      "message": "Make sure that nothing flashes more than three times in a second."
+    }
+  ]
+}

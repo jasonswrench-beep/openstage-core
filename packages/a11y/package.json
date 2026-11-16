@@ -1,0 +1,30 @@
+{
+  "name": "@openstage/a11y",
+  "version": "0.1.0",
+  "description": "The OpenStage accessibility rules (A11Y-1, specs/a11y/A11Y-1.md) for a tool's editor: the rule catalogue, status words, WCAG 2.1 contrast, findings and a project's ignore and blocker settings. No dependencies.",
+  "license": "Apache-2.0",
+  "author": "Jason S. Wrench",
+  "homepage": "https://github.com/jasonswrench-beep/openstage-core/tree/main/packages/a11y",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonswrench-beep/openstage-core.git",
+    "directory": "packages/a11y"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

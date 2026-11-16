@@ -1,0 +1,51 @@
+{
+  "id": "html-pictures",
+  "about": "Pictures: no description, placeholder descriptions (a word, a file name, the file's stem), a decorative picture that has a description, an image button and an SVG with no name. A picture hidden from screen readers and a decorative one with an empty description are fine.",
+  "input": "pictures.html",
+  "findings": [
+    {
+      "rule": "alt-missing",
+      "status": "fail",
+      "key": "alt-missing pictures.html#id=none"
+    },
+    {
+      "rule": "alt-missing",
+      "status": "fail",
+      "key": "alt-missing pictures.html#id=go"
+    },
+    {
+      "rule": "alt-missing",
+      "status": "fail",
+      "key": "alt-missing pictures.html#id=chart"
+    },
+    {
+      "rule": "alt-weak",
+      "status": "fail",
+      "key": "alt-weak pictures.html#id=word",
+      "params": {
+        "alt": "image"
+      }
+    },
+    {
+      "rule": "alt-weak",
+      "status": "fail",
+      "key": "alt-weak pictures.html#id=file"
+    },
+    {
+      "rule": "alt-weak",
+      "status": "fail",
+      "key": "alt-weak pictures.html#id=stem"
+    },
+    {
+      "rule": "alt-decorative-text",
+      "status": "fail",
+      "key": "alt-decorative-text pictures.html#id=both"
+    }
+  ],
+  "rules": {
+    "alt-missing": "fail",
+    "alt-weak": "fail",
+    "alt-decorative-text": "fail",
+    "page-lang": "pass"
+  }
+}

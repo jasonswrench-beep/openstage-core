@@ -1,0 +1,49 @@
+{
+  "id": "pptx-problems",
+  "about": "A presentation: slide 1 has a title, a picture with no description and large grey text on a near-black shape (2.39 to 1, under 3 to 1); slide 2 has no title, a table with no header row and a link that says click here.",
+  "input": "problems.pptx",
+  "kind": "pptx",
+  "files": 2,
+  "findings": [
+    {
+      "rule": "alt-missing",
+      "status": "fail",
+      "key": "alt-missing ppt/slides/slide1.xml#id=4"
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text ppt/slides/slide1.xml#id=5",
+      "params": {
+        "foreground": "#5A5A5A",
+        "background": "#1F1F1F",
+        "ratio": "2.3",
+        "minimum": "3",
+        "size": "large"
+      }
+    },
+    {
+      "rule": "slide-title",
+      "status": "fail",
+      "key": "slide-title ppt/slides/slide2.xml#slide=2",
+      "params": {
+        "slide": "2"
+      }
+    },
+    {
+      "rule": "table-headers",
+      "status": "fail",
+      "key": "table-headers ppt/slides/slide2.xml#id=6"
+    },
+    {
+      "rule": "link-vague",
+      "status": "needs-review",
+      "key": "link-vague ppt/slides/slide2.xml#id=7"
+    }
+  ],
+  "rules": {
+    "page-title": "pass",
+    "page-lang": "pass",
+    "slide-title": "fail"
+  }
+}

@@ -1,0 +1,5 @@
+.muted { color: #999999; }
+a:focus { outline: none; }
+button:focus { outline: 0; box-shadow: 0 0 0 3px #000000; }
+.box input:focus-visible { outline: none; box-shadow: none; }
+.box:focus-within { outline: 3px solid #000000; }

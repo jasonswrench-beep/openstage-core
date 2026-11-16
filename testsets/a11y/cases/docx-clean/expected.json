@@ -1,0 +1,17 @@
+{
+  "id": "docx-clean",
+  "about": "A Word file with nothing to find: a title, a language, headings 1, 2, 1, a described picture, a table whose first row repeats as a header, a link that says where it goes, and grey text (the Subtle style, #767676) that just passes at 4.54 to 1.",
+  "input": "clean.docx",
+  "kind": "docx",
+  "findings": [],
+  "rules": {
+    "page-title": "pass",
+    "page-lang": "pass",
+    "heading-order": "pass",
+    "heading-start": "pass",
+    "alt-missing": "pass",
+    "table-headers": "pass",
+    "link-vague": "pass",
+    "contrast-text": "pass"
+  }
+}

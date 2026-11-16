@@ -1,0 +1,79 @@
+{
+  "id": "html-contrast",
+  "about": "Colours in the light and the dark scheme: grey text under 4.5 to 1 (twice, so counted twice), large and large bold text that pass at 3 to 1, bold text just under 14 points that fails, text on a picture (needs review), a half-black tint that passes on white and fails on the dark background, a print-only rule that is left out without a word, and a narrow-screen rule that is not followed and is listed in the limits.",
+  "input": "colours.html",
+  "findings": [
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text colours.html#id=grey",
+      "count": 2,
+      "params": {
+        "foreground": "#777777",
+        "background": "#FFFFFF",
+        "ratio": "4.4",
+        "minimum": "4.5",
+        "size": "normal"
+      }
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text colours.html#id=smallbold",
+      "params": {
+        "foreground": "#949494",
+        "background": "#FFFFFF",
+        "ratio": "3.0",
+        "minimum": "4.5",
+        "size": "normal"
+      }
+    },
+    {
+      "rule": "contrast-text",
+      "status": "needs-review",
+      "key": "contrast-text colours.html#id=photo",
+      "variant": "unknown-background",
+      "params": {
+        "foreground": "#333333"
+      }
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text colours.html#id=grey@dark",
+      "count": 2,
+      "params": {
+        "foreground": "#555555",
+        "background": "#222222",
+        "ratio": "2.1",
+        "minimum": "4.5"
+      }
+    },
+    {
+      "rule": "contrast-text",
+      "status": "needs-review",
+      "key": "contrast-text colours.html#id=photo@dark",
+      "variant": "unknown-background"
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text colours.html#id=tint@dark",
+      "params": {
+        "foreground": "#000000",
+        "background": "#111111",
+        "ratio": "1.1"
+      }
+    }
+  ],
+  "rules": {
+    "contrast-text": "fail"
+  },
+  "summary": {
+    "fail": 6,
+    "needsReview": 2
+  },
+  "limits": [
+    "Rules inside @media (max-width: 600px) were not followed."
+  ]
+}

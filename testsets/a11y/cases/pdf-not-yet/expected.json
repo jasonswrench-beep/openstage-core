@@ -1,0 +1,15 @@
+{
+  "id": "pdf-not-yet",
+  "about": "A PDF: this revision's engine does not read PDFs, so every PDF rule is not tested and the report says why.",
+  "input": "tiny.pdf",
+  "kind": "pdf",
+  "findings": [],
+  "rules": {
+    "pdf-tagged": "not-tested",
+    "pdf-title-shown": "not-tested",
+    "alt-missing": "not-tested",
+    "page-lang": "not-tested",
+    "page-title": "not-tested",
+    "bookmarks": "not-tested"
+  }
+}

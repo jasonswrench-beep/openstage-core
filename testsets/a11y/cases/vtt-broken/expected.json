@@ -1,0 +1,19 @@
+{
+  "id": "vtt-broken",
+  "about": "A captions file that does not start with WEBVTT.",
+  "input": "broken.vtt",
+  "kind": "vtt",
+  "findings": [
+    {
+      "rule": "captions-format",
+      "status": "fail",
+      "key": "captions-format broken.vtt#line=1",
+      "params": {
+        "detail": "it does not start with WEBVTT"
+      }
+    }
+  ],
+  "rules": {
+    "captions-format": "fail"
+  }
+}

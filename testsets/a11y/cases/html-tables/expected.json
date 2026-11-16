@@ -1,0 +1,15 @@
+{
+  "id": "html-tables",
+  "about": "Tables: one with no header cells fails; one with th, one with scope, a layout table (role=presentation) and a table of one row are fine or not checked.",
+  "input": "tables.html",
+  "findings": [
+    {
+      "rule": "table-headers",
+      "status": "fail",
+      "key": "table-headers tables.html#id=bare"
+    }
+  ],
+  "rules": {
+    "table-headers": "fail"
+  }
+}

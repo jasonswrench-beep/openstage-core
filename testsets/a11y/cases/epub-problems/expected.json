@@ -1,0 +1,57 @@
+{
+  "id": "epub-problems",
+  "about": "An EPUB with no accessibility details and no contents list; chapter 1 has a picture with no description and faint text from the book's style sheet; chapter 2 does not say its language and its first heading is level 3, after chapter 1's level 1 (the book's headings are one outline).",
+  "input": "problems.epub",
+  "kind": "epub",
+  "findings": [
+    {
+      "rule": "ebook-metadata",
+      "status": "fail",
+      "key": "ebook-metadata OEBPS/content.opf",
+      "params": {
+        "missing": "access mode, features, hazards, summary"
+      }
+    },
+    {
+      "rule": "bookmarks",
+      "status": "fail",
+      "key": "bookmarks OEBPS/content.opf"
+    },
+    {
+      "rule": "alt-missing",
+      "status": "fail",
+      "key": "alt-missing OEBPS/text/ch1.xhtml#id=pic"
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text OEBPS/text/ch1.xhtml#id=faint",
+      "params": {
+        "foreground": "#AAAAAA",
+        "background": "#FFFFFF",
+        "ratio": "2.3"
+      }
+    },
+    {
+      "rule": "page-lang",
+      "status": "fail",
+      "key": "page-lang OEBPS/text/ch2.xhtml#html"
+    },
+    {
+      "rule": "heading-order",
+      "status": "fail",
+      "key": "heading-order OEBPS/text/ch2.xhtml#id=deep",
+      "params": {
+        "level": "3",
+        "previous": "1",
+        "expected": "2"
+      }
+    }
+  ],
+  "rules": {
+    "ebook-metadata": "fail",
+    "bookmarks": "fail",
+    "page-title": "pass",
+    "heading-start": "pass"
+  }
+}

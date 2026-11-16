@@ -1,0 +1,43 @@
+{
+  "id": "html-ids",
+  "about": "Ids: one used twice, an aria-labelledby that names an id that is not there (so the field also has no name), and a label for nothing.",
+  "input": "ids.html",
+  "findings": [
+    {
+      "rule": "id-duplicate",
+      "status": "fail",
+      "key": "id-duplicate ids.html#html/body/main[1]/p[1]",
+      "params": {
+        "id": "dup",
+        "count": "2"
+      }
+    },
+    {
+      "rule": "id-reference",
+      "status": "fail",
+      "key": "id-reference ids.html#id=q",
+      "params": {
+        "attribute": "aria-labelledby",
+        "id": "missing-label"
+      }
+    },
+    {
+      "rule": "id-reference",
+      "status": "fail",
+      "key": "id-reference ids.html#id=lab",
+      "params": {
+        "attribute": "The label's for attribute",
+        "id": "nowhere"
+      }
+    },
+    {
+      "rule": "control-name",
+      "status": "fail",
+      "key": "control-name ids.html#id=q"
+    }
+  ],
+  "rules": {
+    "id-duplicate": "fail",
+    "id-reference": "fail"
+  }
+}

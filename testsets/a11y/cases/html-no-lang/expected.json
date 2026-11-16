@@ -1,0 +1,19 @@
+{
+  "id": "html-no-lang",
+  "about": "A page that does not say its language at all.",
+  "input": "nolang.html",
+  "findings": [
+    {
+      "rule": "page-lang",
+      "status": "fail",
+      "key": "page-lang nolang.html#html",
+      "params": {
+        "what": "page"
+      }
+    }
+  ],
+  "rules": {
+    "page-lang": "fail",
+    "page-title": "pass"
+  }
+}

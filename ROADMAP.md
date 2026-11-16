@@ -1,8 +1,8 @@
 # Roadmap
 
 Later work for the shared core: agreed in principle, not scheduled. The current work is in [CORE-NOTES.md](CORE-NOTES.md)
-("Where things stand"): priority 3, packaging the capture format (C1), the accessibility rules (C2) and the bank
-reader (C4); then priority 4, Author's validator warning instead of blocking. An item moves from here into
+("Where things stand"): priority 3, packaging the capture format (C1, done: the Rust part), the accessibility rules
+(C2, done: A11Y-1) and the bank reader (C4, next); then priority 4, Author's validator warning instead of blocking. An item moves from here into
 CORE-NOTES when the author schedules it.
 
 ## The order of the rounds (the author's word, 2026-11-15)
@@ -13,8 +13,9 @@ CORE-NOTES when the author schedules it.
    - Recorder (with Author): move to the core's capture code (tag `capture-v0.1.0`), and merge the two drifted
      copies of the editing code into one core package (the list is in `specs/capture/README.md`). Capture Express
      moves its three pins to the same tag.
-   - OpenExplainer and Recorder: the accessibility rules (C2) as a core package, once priority 3 has it. OpenExplainer
-     uses none of the capture code today.
+   - OpenExplainer and Recorder: the accessibility rules (C2), ready since 2026-11-16 (A11Y-1, the engine at tag
+     `a11y-v0.1.0`, `@openstage/a11y`); what each does with them is in its CORE-NOTES section. Capture Express takes
+     them in the same round. OpenExplainer uses none of the capture code today.
    - PrismQDA: its section of CORE-NOTES.md (the shared statistics crate, the case-table profile, the reused ids, the
      docs sentence, and a test set for the case table).
 

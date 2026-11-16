@@ -1,0 +1,18 @@
+{
+  "id": "epub-clean",
+  "about": "An EPUB with nothing to find: title, language, the four accessibility details, a contents list, and two chapters whose headings run 1, 2, 1.",
+  "input": "clean.epub",
+  "kind": "epub",
+  "files": 3,
+  "findings": [],
+  "rules": {
+    "page-title": "pass",
+    "page-lang": "pass",
+    "ebook-metadata": "pass",
+    "bookmarks": "pass",
+    "heading-order": "pass",
+    "heading-start": "pass",
+    "alt-missing": "pass",
+    "role-unknown": "pass"
+  }
+}

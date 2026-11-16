@@ -1,0 +1,31 @@
+{
+  "id": "html-clean",
+  "about": "A page with nothing to find: language, title, a main part, a skip link, headings in order, described and decorative pictures, a labelled field, a table with headers, a video with captions and descriptions, a sound with a transcript, and colours that pass in both schemes.",
+  "input": "clean.html",
+  "findings": [],
+  "rules": {
+    "page-lang": "pass",
+    "page-title": "pass",
+    "alt-missing": "pass",
+    "heading-order": "pass",
+    "heading-start": "pass",
+    "contrast-text": "pass",
+    "captions-missing": "pass",
+    "audio-description": "pass",
+    "table-headers": "pass",
+    "bypass-blocks": "pass",
+    "landmark-main": "pass",
+    "control-name": "pass",
+    "link-name": "pass",
+    "timed-content": "not-applicable",
+    "focus-visible": "not-applicable"
+  },
+  "checklist": [
+    "reading-order",
+    "alt-meaning",
+    "color-only",
+    "keyboard-trial",
+    "captions-accuracy",
+    "flashing"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "docx-problems",
+  "about": "A Word file with no title; a level 3 heading after a level 1; light grey text; a picture with no description and one whose description is its name; a link that says click here; a table with no header row; an empty heading.",
+  "input": "problems.docx",
+  "kind": "docx",
+  "findings": [
+    {
+      "rule": "page-title",
+      "status": "fail",
+      "key": "page-title docProps/core.xml",
+      "params": {
+        "what": "Word file"
+      }
+    },
+    {
+      "rule": "heading-order",
+      "status": "fail",
+      "key": "heading-order word/document.xml#object=paragraph 2",
+      "params": {
+        "level": "3",
+        "previous": "1",
+        "expected": "2"
+      }
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text word/document.xml#object=paragraph 3",
+      "params": {
+        "foreground": "#999999",
+        "background": "#FFFFFF",
+        "ratio": "2.8",
+        "size": "normal"
+      }
+    },
+    {
+      "rule": "alt-missing",
+      "status": "fail",
+      "key": "alt-missing word/document.xml#id=1"
+    },
+    {
+      "rule": "alt-weak",
+      "status": "fail",
+      "key": "alt-weak word/document.xml#id=2",
+      "params": {
+        "alt": "Picture 2"
+      }
+    },
+    {
+      "rule": "link-vague",
+      "status": "needs-review",
+      "key": "link-vague word/document.xml#object=link 1"
+    },
+    {
+      "rule": "table-headers",
+      "status": "fail",
+      "key": "table-headers word/document.xml#object=table 1"
+    },
+    {
+      "rule": "heading-empty",
+      "status": "fail",
+      "key": "heading-empty word/document.xml#object=paragraph 12"
+    }
+  ],
+  "rules": {
+    "page-lang": "pass",
+    "heading-start": "pass"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "html-lang-title",
+  "about": "A language written with an underscore (en_US) and a placeholder title.",
+  "input": "lang.html",
+  "findings": [
+    {
+      "rule": "page-lang",
+      "status": "fail",
+      "key": "page-lang lang.html#html",
+      "variant": "invalid",
+      "params": {
+        "lang": "en_US",
+        "what": "page"
+      }
+    },
+    {
+      "rule": "page-title",
+      "status": "fail",
+      "key": "page-title lang.html#html",
+      "variant": "placeholder",
+      "params": {
+        "title": "Untitled"
+      }
+    }
+  ],
+  "rules": {
+    "page-lang": "fail",
+    "page-title": "fail"
+  }
+}

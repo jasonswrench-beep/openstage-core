@@ -1,0 +1,63 @@
+{
+  "id": "site",
+  "about": "A help site (a folder): a shared style sheet in css/, read from the top page and from a page in a sub-folder (../css/site.css), with a colour that fails and a focus rule that takes the outline away (reported once, not once a page), and a search field whose own ring is taken away but whose box shows focus with :focus-within (not reported); a page with navigation and no way past it; a page whose skip link goes nowhere; a page with no title.",
+  "input": "site",
+  "kind": "site",
+  "files": 4,
+  "findings": [
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text index.html#id=muted",
+      "params": {
+        "foreground": "#999999",
+        "background": "#FFFFFF",
+        "ratio": "2.8"
+      }
+    },
+    {
+      "rule": "focus-visible",
+      "status": "needs-review",
+      "key": "focus-visible css/site.css#line=2",
+      "params": {
+        "selector": "a:focus"
+      }
+    },
+    {
+      "rule": "landmark-main",
+      "status": "fail",
+      "key": "landmark-main no-way.html#html/body"
+    },
+    {
+      "rule": "bypass-blocks",
+      "status": "fail",
+      "key": "bypass-blocks no-way.html#html/body"
+    },
+    {
+      "rule": "bypass-blocks",
+      "status": "fail",
+      "key": "bypass-blocks skip.html#id=skip",
+      "variant": "skip-target",
+      "params": {
+        "id": "content"
+      }
+    },
+    {
+      "rule": "page-title",
+      "status": "fail",
+      "key": "page-title topics/printing.html#html"
+    },
+    {
+      "rule": "contrast-text",
+      "status": "fail",
+      "key": "contrast-text topics/printing.html#id=p2"
+    }
+  ],
+  "rules": {
+    "contrast-text": "fail",
+    "focus-visible": "needs-review",
+    "landmark-main": "fail",
+    "bypass-blocks": "fail",
+    "page-title": "fail"
+  }
+}
