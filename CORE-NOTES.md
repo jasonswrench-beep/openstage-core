@@ -21,7 +21,7 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
 | [Bank reader](specs/bank/BANK-1.md) (C4) | BANK-1 revision **1.0** (OpenAssess bank format 1); `@openstage/bank` 0.1.0, tag `bank-v0.1.0` | **Ready** (priority 3, last part). Reads a `.openassess` bank in Node or a browser, with no dependencies: every question with its key, details, folder, pictures, equations, history and when it was last given; what it cannot read is listed. Held to two banks OpenAssess's own code wrote and seven hand-made ones. |
 | Author's validator: warn, never block, with opt-in blockers | | Priority 4. Author's session has begun it in its own round (its `CORE-REQUESTS.md` R2: findings warn, `accessibilityBlockers`); the core's part is A11Y-1 sections 5 and 8. See its section below. |
-| Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
+| Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0`, `bank-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`, `@openstage/bank`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
 
 ## The .pstat format, in short
@@ -180,6 +180,12 @@ browser (it unpacks with the browser's `DecompressionStream`, or `node:zlib`, or
 import { readBank } from "@openstage/bank";
 const bank = await readBank(bytes);   // bank.questions, bank.folders, bank.tests, bank.problems, await bank.media(file)
 ```
+
+```bash
+npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/bank-v0.1.0/openstage-bank-0.1.0.tgz
+```
+
+(No sign-in needed; checked 2026-11-16 from a fresh folder, checksum in the release's `SHA256SUMS.txt`.)
 
 Each question gives `id`, `revision`, `type` and `typeName`, `title`, `stem` (`{ html, text }`, the HTML cleaned to
 the subset, since a bank can come from anyone), `points`, `options`, `key` by type and `hasKey`, `feedback`,
