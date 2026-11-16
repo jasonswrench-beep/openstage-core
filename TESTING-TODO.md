@@ -19,9 +19,10 @@ Everything else is checked by the scripts (`node tools/check_all.mjs`, and the t
 
 ## The bank reader, BANK-1 (2026-11-16)
 
-- [ ] **Optional: a real bank of yours.** The reader has read two banks OpenAssess made for the test set, not one of
-  your own courses. If you have one you are happy for it to read on this computer, say where it is; nothing leaves
-  the computer and the bank is not changed.
+- [x] **Optional: a real bank of yours.** Done 2026-11-16: four banks of yours, made by OpenAssess's PDF import (131
+  questions: multiple choice, true or false, essay, matching), read from copies on this computer with no problems.
+  Every question, type, key, option, title, note and test (1,670 values) equals an independent read of the same
+  files. The banks stay out of this repository.
 - [ ] **Keep or change the choices made without asking** (BANK-1 section 8.2 says each one):
   - retired questions are given, with their status, and each tool decides whether to offer them;
   - in plain text a picture reads "[Picture: its description]" and an equation "[Equation: its LaTeX]";

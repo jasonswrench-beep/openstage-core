@@ -19,7 +19,7 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | [Capture format](specs/capture/README.md) (C1) | schema 0.2.5; crates 0.1.0, tag `capture-v0.1.0` | **Rust code and format documents moved here** (priority 3, first part); 724 tests pass. The TypeScript editing code has two drifted copies and moves here after they are merged, in the Recorder round. |
 | [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
-| [Bank reader](specs/bank/BANK-1.md) (C4) | BANK-1 revision **1.0** (OpenAssess bank format 1); `@openstage/bank` 0.1.0, tag `bank-v0.1.0` | **Ready** (priority 3, last part). Reads a `.openassess` bank in Node or a browser, with no dependencies: every question with its key, details, folder, pictures, equations, history and when it was last given; what it cannot read is listed. Held to two banks OpenAssess's own code wrote and seven hand-made ones. |
+| [Bank reader](specs/bank/BANK-1.md) (C4) | BANK-1 revision **1.0** (OpenAssess bank format 1); `@openstage/bank` 0.1.0, tag `bank-v0.1.0` | **Ready** (priority 3, last part). Reads a `.openassess` bank in Node or a browser, with no dependencies: every question with its key, details, folder, pictures, equations, history and when it was last given; what it cannot read is listed. Held to two banks OpenAssess's own code wrote and seven hand-made ones, and read four of the author's own banks (131 questions, kept out of this repository) with every value equal to an independent read. |
 | Author's validator: warn, never block, with opt-in blockers | | Priority 4. Author's session has begun it in its own round (its `CORE-REQUESTS.md` R2: findings warn, `accessibilityBlockers`); the core's part is A11Y-1 sections 5 and 8. See its section below. |
 | Releases | `pstat-v1.3.0`, `item-analysis-v2.0.0` (both 2026-11-16; the earlier `pstat-v1.2.0` and `item-analysis-v1.1.0` stay up), `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0`, `bank-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`, `@openstage/bank`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
@@ -304,6 +304,11 @@ Read against your handoff of 2026-11-15 and `CORE-REQUESTS.md` (as changed after
    the same round. Two banks in the set were written by your own code (`testsets/bank/sources`: your GIFT importer, and
    `make_course_bank.ts`, which calls your `Bank`, `createQuestion` and `createTest`); nothing in your repository was
    changed. Your `src/read` module ("do not build on it") stays yours; the core's reader does not use it.
+8. **Seen in one of the author's own banks (2026-11-16), for your PDF import.** A bank your PDF import made holds 8
+   essay questions that are lines of a list in the PDF, not questions (their text is a name of a few words, the last
+   with the page's "TEST BANK" running head). Each carries your `import.type-inferred` note, so your import already
+   doubted them; 6 of them are in the bank's saved test. The core's reader passes the notes on unchanged. Nothing was
+   changed in the bank; the author decides what to do with them.
 
 ## For the PrismStatistics session
 
