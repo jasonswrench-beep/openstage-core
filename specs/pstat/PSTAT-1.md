@@ -1,6 +1,6 @@
 # The .pstat project file, format 1
 
-**Spec revision 1.2, 2026-11-15. Status: locked.**
+**Spec revision 1.3, 2026-11-16. Status: locked.**
 
 A `.pstat` file is a PrismStatistics project: one dataset with its variables, labels and missing codes, where the data
 came from, and PrismStatistics's record of the analyses run on it and their results. PrismStatistics has written this
@@ -205,14 +205,18 @@ tied to the bank's question ids so that files from different semesters can be ma
 holds, except that `profile` is `OpenAssess item results 2`; then:
 
 - **The variables up to `total` are exactly profile 1's.** After `total` come, in this order:
-  1. **One answer variable per `q` variable**, only when the marks are known: scanned sheets have them; a learning
-     system's report gives points only, and then no answer variable is written. Same order as the `q` variables, named
-     `r` with the same number and digits (`r07` beside `q07`), text, `nominal`, label `Question 7 answer`, no value
-     labels.
+  1. **One answer variable for each `q` variable whose question has letters**, only when the marks are known:
+     scanned sheets have them; a learning system's report gives points only, and then no answer variable is written.
+     A question of type `other` has no letters (a short answer written in a box and scored by a person), so it has no
+     answer variable, and its `answer_variable` is `null`. Same order as the `q` variables, named `r` with the same
+     number and digits (`r07` beside `q07`), text, `nominal`, label `Question 7 answer`, no value labels.
      - The cell is the letters marked on that sheet **in version A's lettering**: the first option as version A prints
        it is `A`, whatever version the sheet was. Capital letters, in alphabetical order, with nothing between them
        (`B`, `AC`). A true/false question is `A` for True and `B` for False.
-     - `""` when the sheet was left blank on that question. `null` exactly where the `q` cell is `null`.
+     - `""` when the sheet was left blank on that question.
+     - `null` where the `q` cell is `null`; and, beside points, **only on a question credited to everyone
+       (`credit_all`) whose marks on that sheet were never settled** (a faint mark, and then the question was
+       credited). `null` beside points means "no letters were read", never "left blank".
      - Several letters on a one-answer question are written as marked (`AB`); such an answer earns nothing.
   2. **`student_id`**, optional: text, `nominal`, label `Student ID`. The student's id for each sheet, as the
      instructor typed or imported it; `null` for a sheet without one. A writer that holds no ids writes no such
@@ -262,8 +266,8 @@ holds, except that `profile` is `OpenAssess item results 2`; then:
 | `bank_id` | string | The bank's id for the question (`q_` and 26 characters). It never changes, so it matches files across tests and semesters. |
 | `revision` | integer | The question's version number in the bank when the test was assembled (it goes up with each edit), from 1. |
 | `points_variable` | integer or null | The `id` of its `q` variable; `null` when the question was left out. |
-| `answer_variable` | integer or null | The `id` of its `r` variable; `null` when it was left out or no answer variables were written. |
-| `type` | string | `multiple_choice`, `select_all`, `true_false`, or `other` for a question with no letters (from a learning system's report). |
+| `answer_variable` | integer or null | The `id` of its `r` variable; `null` when it was left out, when no answer variables were written, or when its type is `other`. |
+| `type` | string | `multiple_choice`, `select_all`, `true_false`, or `other` for a question with no letters: every question of a learning system's report, and a short answer written in a box and scored by a person. |
 | `options` | array of strings | The letters of its options on version A (`["A", "B", "C", "D"]`); `["A", "B"]` for true/false; `[]` for `other`. |
 | `option_ids` | array of strings | The bank's id of each option, in the same order (`["o1", "o3", "o2", "o4"]`); `["true", "false"]` for true/false; `[]` for `other`. |
 | `option_labels` | object or null | `{"A": "True", "B": "False"}` for true/false, otherwise `null`. The text of an option is never written. |
@@ -283,8 +287,9 @@ A **key entry**:
 **The key reproduces the points.** For a sheet of version *v*, with key entry *e* for *v* and answer cell *s*:
 
 1. `dropped`: the `q` and `r` cells are `null`.
-2. `credit_all`: the sheet earns `points`.
-3. Type `other`: the points are as the source gave them (there is no answer cell).
+2. `credit_all`: the sheet earns `points`, whatever its answer cell holds: letters, `""`, or `null` when the marks
+   were never settled.
+3. Type `other`: the points are as the source gave them, or as the person scored the box (there is no answer cell).
 4. *s* is `""`: 0.
 5. `select_all`, with *K* = `correct[0]`: if *s* = *K*, `points`. Otherwise, with *right* the letters of *s* that are in
    *K* and *wrong* the others: when `partial_credit`, `points` × max(0, *right* − *wrong*) ÷ (the letters in *K*),
@@ -293,6 +298,17 @@ A **key entry**:
 
 A writer whose scoring differs from this rule MUST NOT write profile 2. Never written: a question's text, its options'
 text, feedback, the question's author and the scanned pictures.
+
+**Counting the answers** (the author's ruling, 2026-11-15, written here in 1.3). A tool that counts the letters
+marked on a question (how many sheets left it blank, how many gave each answer) counts:
+
+- a sheet as **blank** on a question only when its answer cell is `""` and the question was not credited to everyone
+  on that sheet's version;
+- on a question credited to everyone (`credit_all`), a sheet whose cell is `""` or `null` as **credited**, never
+  blank, and never left out: it earns the points and counts in the question's figures like every other sheet;
+- no letters for a question of type `other`: its figures come from its points alone.
+
+The item-analysis test set (`testsets/item-analysis`, set 2.0.0, case `credited-40`) holds these.
 
 **For PrismStatistics's key.** Its typed key maps directly: `correct` is the list of alternatives (`D/B`, `AC`),
 `dropped` is `-` and `credit_all` is `*`. Partial credit and a key that differs by version have no equivalent there;
@@ -398,11 +414,12 @@ not yet. `packages/pstat`'s `checkProject` reports a broken writer rule by its n
 
 ### Checking a reader
 
-`conformance/check_reader.mjs` makes 33 files: 13 sound ones (stored and deflated entries, an extra entry, unknown
-members, ID 0, a name with letters outside ASCII, a text column, each profile with its part, a part that is not JSON
-and others) that a reader must open, and 20 that each break one rule above and must be refused. `readPstat` and
-PrismStatistics opened and refused all 33 as this document says (2026-11-15, `prism.exe` built from PrismStatistics
-commit 10cee4b; the first 30 also with the 0.1.1 tree):
+`conformance/check_reader.mjs` makes 34 files: 14 sound ones (stored and deflated entries, an extra entry, unknown
+members, ID 0, a name with letters outside ASCII, a text column, each profile with its part, profile 2 with a credited
+question's empty cell and a box with no answer variable, a part that is not JSON and others) that a reader must open,
+and 20 that each break one rule above and must be refused. `readPstat` opens and refuses all 34 as this document
+says. PrismStatistics opened and refused the first 33 (2026-11-15, `prism.exe` built from PrismStatistics commit
+10cee4b; the first 30 also with the 0.1.1 tree); the 34th is new in 1.3:
 
 ```bash
 node specs/pstat/conformance/check_reader.mjs --prism <path to prism.exe or prismstatistics-app.exe>
@@ -441,6 +458,17 @@ PrismStatistics's message for a newer file names the program that wrote it ("Thi
 ```
 
 ## 10. Changes
+
+- **1.3 (2026-11-16).** Two gaps in profile 2 settled, and how answers are counted. A reader opens a file written
+  under 1.2 as before; a writer writes the two cases below differently, and `checkPstat` (the writer's check) now
+  refuses an answer variable for a question of type `other`.
+  - A question of type `other` has no answer variable: a short answer written in a box and scored by a person is
+    `other`, and so is every question of a learning system's report. (1.2 asked for an answer variable for every
+    question, and a writer put `""`, "left blank", in a box's cells.)
+  - An answer cell may be `null` beside points on a question credited to everyone, when the marks were never
+    settled. (1.2 kept `null` for where the points are `null`, so a writer put `""` there.)
+  - Counting the answers: a credited question is never counted blank (the author's ruling of 2026-11-15), and `null`
+    is never blank.
 
 - **1.2 (2026-11-15).** Profile 2 may carry the students' names (`student_name`) beside their ids, and neither is off
   by default any more: a writer that holds them writes them, and may let the person leave them out. The author's

@@ -83,10 +83,9 @@ installed by hand and shows its release; nothing past that has been tried in it 
 - **C7, the source ledger** (OpenAssess item 7): see the C7 section above.
 - **C8, the AI runtime** (OpenAssess item 8, and the model's suggested score for a short-answer box in item 9): see
   the C8 section above.
-- **Two rulings in PSTAT-1 section 7.2.** A short answer written in a box and scored by a person has no letters, and
-  a credited question whose marks were never settled has no letters either. The checker wants an `r` cell for each,
-  so OpenAssess writes `""`, which the spec keeps for "left blank", and says so in the file's notes. Either leaving out
-  the `r` variable for type `other` or naming a value for "no letters" would settle both (`CORE-HANDOFF.md` 2b and 2c).
+- ~~**Two rulings in PSTAT-1 section 7.2.**~~ **Settled 2026-11-16, PSTAT-1 1.3:** a box scored by a person has no
+  `r` variable, and a credited question's unsettled marks are an empty (`null`) answer cell. What OpenAssess changes
+  is in its CORE-NOTES section.
 - **For PrismStatistics:** keep the `profile` member when saving, recognise `OpenAssess item results 1` and 2 when
   opening, label its item column "Corrected item-total r (total leaves the item out)", count a credited question left
   blank as credited, and fix the newer-file message that says "PrismStatistics OpenAssess" (`CORE-HANDOFF.md` 3).
@@ -128,22 +127,24 @@ full lists are in PrismStatistics's `TESTING-TODO.md` (what only a person can ch
 
 **Waiting on the core**
 
-- **A credited question left blank.** OpenAssess asks PrismStatistics to count it as credited; the set's README lists
-  it as a difference on purpose (PrismStatistics counts the answer as blank, though the points are credited). One
-  ruling in the set's README settles it, with a case that holds one; PrismStatistics follows it.
-- **"No letters" in profile 2** (OpenAssess's two rulings above): PrismStatistics reads `""` as blank today, so a
-  person-scored short answer shows as blank in its answer counts. It reads points for such questions already; the
-  ruling decides what its answer table shows.
-- **Question details** (objective, chapter, Bloom level) are kept in `assessment.json` but not yet used to group items.
-  No core change needed; a PrismStatistics feature for a later round.
+- ~~**A credited question left blank**~~ and ~~**"No letters" in profile 2**~~: **settled 2026-11-16** (PSTAT-1 1.3,
+  set 2.0.0, case `credited-40`): credited, never blank, never left out; a box has no `r` variable. PrismStatistics
+  follows; what to change is in its CORE-NOTES section.
+- **Question details** (objective, chapter, section, Bloom level, difficulty level) in `assessment.json`: **used since
+  2026-11-16**, as subscores in Test Scoring and Item Analysis, offered by the banner for each detail that splits the
+  questions (checked against base R). Untried on a real OpenAssess file with details filled in, since the set's files
+  leave them empty; a case with details would let the set check subscores too.
 
 **PrismStatistics's own work, not yet done**
 
+- **Accessibility of exported reports**: since 2026-11-16 PrismStatistics's tests run A11Y-1 (tag `a11y-v0.1.0`) on a
+  report exported as Word and as a web page; none fails and nothing needs review. Its PDFs wait on A11Y-1 reading PDFs
+  (section 6.6) and the owner's outside PDF/UA check.
 - **Check for updates** (Help › Check for Updates): built 2026-11-15 and switched the same day, at the author's word, to
   Prism Reference Manager's design, so the two match: `latest.json` on the newest full release, `previous.json` for
-  Return to the previous version (older versions only), and an optional once-a-day check, off by default. It stays
-  "not set up" until the author makes PrismStatistics's update key (`tools/make-update-key.ps1`, which asks for a
-  password) and a release is built with it. 0.2.0 has no button, so the next version is installed by hand once.
+  Return to the previous version (older versions only), and an optional once-a-day check, off by default. The key was
+  made on 2026-11-15, 0.2.1 was published with it (signed, `latest.json` on the release) and installed by hand on
+  2026-11-16. The first update through the button, and Return to the previous version, are tried with 0.2.2.
   PrismQDA still uses the earlier design (a button only, and an `update-feed` pre-release).
 - **Windows' installed-apps entry** still read 0.1.1 after 0.2.0 was installed over it with the uninstall-and-reinstall
   step (the program and About say 0.2.0). Cosmetic; to be watched at the next upgrade and fixed if it happens again.

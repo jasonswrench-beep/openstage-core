@@ -37,7 +37,7 @@ run(".pstat reader conformance (readPstat)", [join("specs", "pstat", "conformanc
   const { checkPstat } = await import(new URL("../packages/pstat/src/index.js", import.meta.url).href);
   const ex = await import(new URL("../specs/pstat/examples/make_examples.mjs", import.meta.url).href);
   const { writePstat } = await import(new URL("../packages/pstat/src/index.js", import.meta.url).href);
-  const files = { "minimal.pstat": [ex.minimal()], "item-results.pstat": [ex.itemResults()], "item-results-2.pstat": [ex.itemResults2(), ex.assessment()], "case-table.pstat": [ex.caseTable(), ex.caseTablePart()] };
+  const files = { "minimal.pstat": [ex.minimal()], "item-results.pstat": [ex.itemResults()], "item-results-2.pstat": [ex.itemResults2(), ex.assessment()], "item-results-2-boxes.pstat": [ex.itemResults2Boxes(), ex.assessmentBoxes()], "case-table.pstat": [ex.caseTable(), ex.caseTablePart()] };
   process.stdout.write("spec examples ... ");
   const bad = Object.entries(files).filter(([file, args]) => {
     const bytes = readFileSync(join(ROOT, "specs", "pstat", "examples", file));

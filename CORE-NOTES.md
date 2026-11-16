@@ -1,6 +1,6 @@
 # Core notes
 
-**Updated 2026-11-16 (priority 3, last part: the bank reader, BANK-1).** Repository
+**Updated 2026-11-16 (the two rulings OpenAssess and PrismStatistics waited on: PSTAT-1 1.3, set 2.0.0).** Repository
 `jasonswrench-beep/openstage-core`, **public since 2026-11-15**. Working folder on the author's PC:
 `C:\Dev\openstage-core`.
 
@@ -13,9 +13,9 @@ revision, and only then in the tools. These notes are kept current with every ch
 
 | Piece | Version | State |
 |---|---|---|
-| [.pstat format](specs/pstat/PSTAT-1.md) | format 1, spec revision **1.2** | **Locked.** New in 1.1: profile parts, `OpenAssess item results 2`, `PrismQDA case table 1`, and the `q` numbering settled. New in 1.2: profile 2 may carry students' ids and names. PrismStatistics opens and refuses all 33 conformance files as the spec says. |
-| [Item-analysis test set](testsets/item-analysis/README.md) (C3) | set **1.1.0** | **Ready.** OpenAssess matches 512 of 512 figures (commit ca56055), PrismStatistics 1,497 of 1,497 (a build of commit 10cee4b). |
-| [`@openstage/pstat`](packages/pstat) | **1.2.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts. |
+| [.pstat format](specs/pstat/PSTAT-1.md) | format 1, spec revision **1.3** | **Locked.** New in 1.1: profile parts, `OpenAssess item results 2`, `PrismQDA case table 1`, and the `q` numbering settled. New in 1.2: profile 2 may carry students' ids and names. New in 1.3: a box scored by a person has no answer variable; a credited question's unsettled marks are an empty answer cell; a credited question is never counted blank. PrismStatistics opened and refused the 33 conformance files of 1.2 as the spec says; the 34th is new. |
+| [Item-analysis test set](testsets/item-analysis/README.md) (C3) | set **2.0.0** | **Ready.** New in 2.0.0: `credited-40`, and a credited question counted credited, never blank (the author's ruling). OpenAssess matches 598 of 598 figures (commit d1ef945, no change needed). PrismStatistics matched 1,497 of 1,497 of set 1.1.0; it has to follow the ruling (its section). |
+| [`@openstage/pstat`](packages/pstat) | **1.3.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts (revision 1.3). |
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | [Capture format](specs/capture/README.md) (C1) | schema 0.2.5; crates 0.1.0, tag `capture-v0.1.0` | **Rust code and format documents moved here** (priority 3, first part); 724 tests pass. The TypeScript editing code has two drifted copies and moves here after they are merged, in the Recorder round. |
 | [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
@@ -62,11 +62,13 @@ exactly one letter is marked and it is accepted; select-all needs exactly the ke
 earns points × max(0, right − wrong) ÷ the key's letters, to the millionth; `credit_all` earns the points, `dropped`
 leaves the cell empty. Question text, option text, feedback, the questions' authors and scanned pictures are never
 written. Students' ids and names may be (revision 1.2, the author's decision: the files stay on the instructor's
-computer).
+computer). Revision 1.3: a question of type `other` (a short answer in a box, scored by a person) has no answer
+variable; an answer cell may be empty beside points only on a question credited to everyone whose marks were never
+settled; and a tool counting answers counts a credited question as credited, never blank.
 
 ## Packages
 
-### `@openstage/pstat` 1.2.0
+### `@openstage/pstat` 1.3.0
 
 Folder `packages/pstat`. ES module, no dependencies, Node 22.2 or later. Types in `src/index.d.ts`.
 
@@ -201,16 +203,18 @@ OpenAssess commit d1ef945), so the reader is held to the real writer; seven are 
 ZIP entry, and five files that are refused). `node testsets/bank/check/check_reader.mjs --module <file>` checks any
 reader with the same shape.
 
-## The item-analysis test set (C3), set 1.1.0
+## The item-analysis test set (C3), set 2.0.0
 
 Folder `testsets/item-analysis`; [its README](testsets/item-analysis/README.md) defines every figure.
 
-- **Nine cases.** Each is a class's scored sheets (`scores.csv`, `case.json`), the `.pstat` file OpenAssess would send
+- **Ten cases.** Each is a class's scored sheets (`scores.csv`, `case.json`), the `.pstat` file OpenAssess would send
   for them, and R's figures in `reference.json` (base R, from the case files alone). New in 1.1.0:
   - `omitted-25`: a question dropped on every version, so the file leaves it out and the names skip it.
   - `letters-60`: the letters marked (`answers.csv`) and a key, in profile 2: one-answer questions, an answer also
     accepted, select-all, true/false, a credited and a dropped question, blanks, and two letters marked on a
     one-answer question.
+  - New in 2.0.0, `credited-40`: a question credited to everyone that five sheets left blank and on which three
+    sheets' marks were never settled. Credited, never blank, never left out (PSTAT-1 1.3, "Counting the answers").
 - **New figures for every case:** `item_analysis_listwise` (PrismStatistics's Item Analysis on the points: KR-20 or
   alpha, KR-21, the standard error of measurement, each group's share and D), each 27 percent group's own share in
   `item.<q>`, and for `letters-60` the counts of each answer by score group (PrismStatistics's) and of each letter's
@@ -281,7 +285,19 @@ Read against your handoff of 2026-11-15 and `CORE-REQUESTS.md` (as changed after
    answer, the box cut out upright, and a person scoring it against the rubric. The model's reading of handwriting
    waits on C8.
 5. Alpha 27 stays held on the author's word.
-6. **Your bank file now has a spec in the core: [BANK-1](specs/bank/BANK-1.md)** (format 1, as alpha 29 writes it),
+6. **Your two rulings (`CORE-HANDOFF.md` 2b and 2c) are settled: PSTAT-1 revision 1.3**, `@openstage/pstat` 1.3.0,
+   and set 2.0.0. What changes in what you write:
+   - **A short answer in a box, scored by a person, has no `r` variable**: its type is `other`, its `answer_variable`
+     is `null`, and the `r` variables skip its number (`r01`, `r03` around a box at 2). Stop writing `""` in its cells
+     and the note about it. (`checkPstat` 1.3.0 refuses an `r` variable for a question of type `other`.)
+   - **A credited question whose marks on a sheet were never settled** has `null` in its answer cell on that sheet,
+     beside the points; `""` stays "left blank". Stop writing `""` and the note for that case.
+   - **The author's ruling, a credited question left blank counts as credited**, is written into the spec ("Counting
+     the answers") and the set; you already count that way, and set 2.0.0 passes 598 of 598 at d1ef945 with no
+     change (`credited-40` holds five blanks and three unsettled sheets on its credited question).
+   - The spec's new example, `specs/pstat/examples/item-results-2-boxes.pstat`, holds both; your export of a test with
+     a box can be compared with it.
+7. **Your bank file now has a spec in the core: [BANK-1](specs/bank/BANK-1.md)** (format 1, as alpha 29 writes it),
    and a reader, `@openstage/bank`, that OpenStage Author and OpenStage Guide asked for. You keep writing banks and
    owning the format. What is asked of you: when a change would be seen by a reader (a new member on a question, a new
    type, a new `formatVersion`), say so in your `CORE-HANDOFF.md`, so BANK-1 gets a revision and the test set a case in
@@ -328,6 +344,23 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    private one; anyone can build it.
 8. In your copy's `check_prismstatistics.mjs`, the note that item means, SDs and difficulty are not computed is out
    of date; the set 1.1.0 checker checks them.
+9. **Set 2.0.0 and PSTAT-1 1.3: the author's ruling, a credited question left blank counts as credited**, is now in
+   the spec ("Counting the answers") and the set (`credited-40`). The differences you listed on purpose (README item
+   6) is closed. What to change, on a question credited to everyone (`credit_all`, your `*`):
+   - a sheet whose answer cell is `""` is **credited, not blank**: its `blank` count is 0, and your option counts
+     put those sheets in a row `credited` (fields `item.<i>.opt.credited.n`, `.upper`, `.middle`, `.lower`) where
+     they now go under `blank`;
+   - a sheet whose answer cell is `null` beside points (marks never settled, new in 1.3) is **credited too, and not
+     missing**: it stays in the item analysis on the letters, like the others, so `n` is the same as on the points;
+   - a question of type `other` has no `r` variable (new in 1.3): Item Analysis on the letters leaves it out;
+   - the reader conformance check has a 34th file, profile 2 with both, which must open.
+   Copy set 2.0.0 (still `-text`), extend `c3_reference.rs` to `credited-40`, and run
+   `check/check_prismstatistics.mjs`.
+   **A build of your commit aa186e0 (0.2.1), made here from `git archive` in a separate folder, 2026-11-16:** the
+   reader conformance check passes 34 of 34 (the new file opens), and set 2.0.0 matches 1,846 of 1,852 figures. The
+   six that differ are all `credited-40` q07 on the letters: you count its 8 sheets (5 `""`, 3 `null`) as `blank`
+   where the set has them as `credited`. You already keep the `null` sheets in (every other figure, `n` among them,
+   matches), so the only change is where those sheets are counted.
 
 ## For the PrismQDA session
 
@@ -484,6 +517,13 @@ sets' checksums, and `cargo test` for each crate (the accessibility engine's run
 when cargo is not on the PATH, or with `--no-rust`). It needs nothing outside the repository.
 
 ## Changes
+
+- **2026-11-16, the two rulings.** PSTAT-1 revision 1.3 and `@openstage/pstat` 1.3.0: a box scored by a person has no
+  answer variable; a credited question's unsettled marks are an empty answer cell; a credited question is never
+  counted blank (the author's ruling of 2026-11-15). Item-analysis set 2.0.0 (a changed definition, so a major
+  version): the case `credited-40`; no 1.1.0 figure changed but `letters-60` q11's empty `blank` row, now `credited`.
+  OpenAssess passes 598 of 598 unchanged; PrismStatistics follows (its section). The spec's example
+  `item-results-2-boxes.pstat` and a 34th reader conformance file.
 
 - **2026-11-16, bank reader (priority 3, last part).** BANK-1 revision 1.0 (`specs/bank`): OpenAssess's bank format 1
   as other tools read it. `@openstage/bank` 0.1.0 (tag `bank-v0.1.0`), the reader, for Node and the browser. The test

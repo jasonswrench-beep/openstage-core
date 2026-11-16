@@ -37,7 +37,7 @@ export const isAnswer = (s) => typeof s === "string" && /^[A-Z]*$/.test(s) && [.
  * for a dropped entry and undefined for type `other`, whose points come from the source.
  * @param {{type: string}} question
  * @param {{correct: string[], points: number, adjustment: string, partial_credit: boolean}} entry
- * @param {string} answer
+ * @param {string | null} answer null only for a credited question whose marks were not settled (revision 1.3)
  */
 export function pointsFor(question, entry, answer) {
   if (entry.adjustment === "dropped") return null;
@@ -163,15 +163,19 @@ function itemResults2(w, { totalAt, questions, width, rows, versionsUsed }) {
   const vars = project.dataset.variables;
   const cols = project.dataset.columns;
 
-  // After total: the answer variables (all or none), then student_id and student_name (each optional), then nothing.
+  // After total: the answer variables (one for each question variable whose question has letters, or none), then
+  // student_id and student_name (each optional), then nothing. A question of type other has no letters (revision 1.3).
+  const partQuestions = isObject(w.part) && Array.isArray(w.part.questions) ? w.part.questions : [];
+  const noLetters = new Set(partQuestions.filter((q) => isObject(q) && q.type === "other").map((q) => q.number));
   let n = totalAt + 1;
   const answers = new Map(); // question number -> column index
   if (vars[n] && /^r\d+$/.test(vars[n].name)) {
     for (const q of questions) {
+      if (noLetters.has(q.number)) continue;
       const name = `r${String(q.number).padStart(width, "0")}`;
       const v = vars[n];
       if (!v || v.name !== name) {
-        add(`$.dataset.variables[${n}]`, `variable ${n + 1} must be ${name}: one answer variable per question variable, in the same order`);
+        add(`$.dataset.variables[${n}]`, `variable ${n + 1} must be ${name}: one answer variable for each question variable, in the same order, except a question of type other, which has no letters`);
         return;
       }
       if (v.measure !== "nominal") add(`$.dataset.variables[${n}].measure`, `${name} is nominal`);
@@ -181,7 +185,8 @@ function itemResults2(w, { totalAt, questions, width, rows, versionsUsed }) {
       else
         cols[n].values.forEach((s, r) => {
           const points = cols[q.n].values[r];
-          if ((s === null) !== (points === null)) add(`$.dataset.columns[${n}].values[${r}]`, `${name} is empty exactly where ${q.name} is empty`);
+          // null with points present is checked against the key below: only a credited question's unsettled marks.
+          if (points === null && s !== null) add(`$.dataset.columns[${n}].values[${r}]`, `${name} is empty where ${q.name} is empty`);
           else if (s !== null && !isAnswer(s)) add(`$.dataset.columns[${n}].values[${r}]`, `${JSON.stringify(s)} is not an answer: capital letters in alphabetical order, each once, or "" for blank`);
         });
       answers.set(q.number, n);
@@ -194,7 +199,11 @@ function itemResults2(w, { totalAt, questions, width, rows, versionsUsed }) {
     if (v.measure !== "nominal" || v.label !== label || cols[n].type !== "text" || v.value_labels.length > 0) add(`$.dataset.variables[${n}]`, `${name} is text, nominal, labelled "${label}", with no value labels`);
     n++;
   }
-  if (n < vars.length) add(`$.dataset.variables[${n}]`, `${vars[n].name} is not part of the profile: after total come the answer variables, then student_id, then student_name`);
+  if (n < vars.length) {
+    const m = /^r(\d+)$/.exec(vars[n].name);
+    if (m && noLetters.has(Number(m[1]))) add(`$.dataset.variables[${n}]`, `${vars[n].name}: question ${Number(m[1])} is of type other, which has no letters, so it has no answer variable`);
+    else add(`$.dataset.variables[${n}]`, `${vars[n].name} is not part of the profile: after total come the answer variables, then student_id, then student_name`);
+  }
   if (problems.length > 0) return;
 
   // The part.
@@ -318,6 +327,10 @@ function itemResults2(w, { totalAt, questions, width, rows, versionsUsed }) {
       }
       if (got < 0 || got > e.points + 1e-9) add(where, `${variable.name} earns from 0 to ${e.points} points`);
       const answer = answerAt === undefined ? undefined : cols[answerAt].values[r];
+      if (answer === null && e.adjustment !== "credit_all") {
+        add(`$.dataset.columns[${answerAt}].values[${r}]`, `${project.dataset.variables[answerAt].name} is empty only where ${variable.name} is, or on a question credited to everyone whose marks were not settled`);
+        continue;
+      }
       const expected = answer === undefined ? (e.adjustment === "credit_all" ? e.points : undefined) : pointsFor(q, e, answer);
       if (expected !== undefined && Math.abs(got - expected) > 1e-9) add(where, `${variable.name}: the key gives ${expected} for ${answer === undefined ? "a credited question" : JSON.stringify(answer)}, but the cell says ${got}`);
     }

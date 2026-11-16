@@ -1,6 +1,6 @@
 {
   "name": "@openstage/pstat",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Read, write and check .pstat project files (format 1, specs/pstat/PSTAT-1.md). No dependencies.",
   "license": "Apache-2.0",
   "author": "Jason S. Wrench",

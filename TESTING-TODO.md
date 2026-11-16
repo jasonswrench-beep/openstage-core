@@ -48,6 +48,14 @@ Everything else is checked by the scripts (`node tools/check_all.mjs`, and the t
 - [ ] **Optional: compare with a checker you trust.** Run `openstage-a11y check <a help site or exported page>` and a
   browser checker you use on the same page; differences are worth a case in `testsets\a11y`.
 
+## The two rulings: PSTAT-1 1.3 and set 2.0.0 (2026-11-16)
+
+- [x] **A credited question left blank counts as credited.** Your ruling of 2026-11-15, now in the spec and the set.
+- [ ] **Keep or change one choice made without asking:** a short answer written in a box and scored by a person has
+  no answer column in the results file at all (OpenAssess's first suggestion), rather than a column of empty cells.
+  A column of empty cells looked the same to a person but would make a statistics program that drops incomplete
+  rows drop every sheet.
+
 ## Second round: profile 2, the case table and set 1.1.0 (2026-11-15)
 
 - [x] **Whether profile 2 may carry a student id.** Answered 2026-11-15: ids and names are both fine, since the files

@@ -141,7 +141,7 @@ export declare function readPart(bytes: Uint8Array, project?: Project): Assessme
 export declare function writePstat(project: Project, part?: Assessment | CaseTablePart): Uint8Array;
 export declare function checkPstat(bytes: Uint8Array): Problem[];
 /** The points an answer earns under a key entry; null for a dropped entry, undefined for type other. */
-export declare function pointsFor(question: { type: string }, entry: KeyEntry, answer: string): number | null | undefined;
+export declare function pointsFor(question: { type: string }, entry: KeyEntry, answer: string | null): number | null | undefined;
 /** The key entry that applies to version number v. */
 export declare function entryFor(question: AssessmentQuestion, v: number): KeyEntry | undefined;
 /** Whether a string is an answer cell: capital letters in alphabetical order, each once, or "". */

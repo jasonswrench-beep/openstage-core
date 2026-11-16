@@ -64,7 +64,7 @@ test("item results 2: what checkPstat refuses", () => {
   assert.match(wrong((p) => ((p.dataset.columns[3].values[1] = 2), (p.dataset.columns[5].values[1] = 3))), /the key gives 1 for "A".*says 2/);
   assert.match(wrong((p) => (p.dataset.columns[6].values[0] = "b")), /not an answer/);
   assert.match(wrong((p) => (p.dataset.columns[6].values[0] = "DB")), /not an answer/);
-  assert.match(wrong((p) => (p.dataset.columns[8].values[0] = null)), /r04 is empty exactly where q04 is empty/);
+  assert.match(wrong((p) => (p.dataset.columns[8].values[0] = null)), /r04 is empty only where q04 is, or on a question credited to everyone/);
   assert.match(wrong((p) => (p.dataset.variables[7].name = "r03")), /must be r02/);
   assert.match(wrong((p) => (p.dataset.variables[6].label = "Question 1")), /label is "Question 1 answer"/);
   assert.match(wrong((p) => p.dataset.variables.push({ id: 10, name: "extra", label: "", measure: "scale", value_labels: [], missing_values: [] }) && p.dataset.columns.push({ type: "numeric", values: [1, 2, 3, 4, 5] }) && (p.dataset.next_id = 11) && (p.source.report.variables = 10)), /extra is not part of the profile/);
@@ -139,4 +139,29 @@ test("the case table: attribute names, and what checkPstat refuses", () => {
     p.source.report.variables = 11;
   };
   assert.equal(wrong(noNames, (a) => (a.case_name_variable = null)), "");
+});
+
+// Revision 1.3: a credited question whose marks were not settled has a null answer cell; a question of type other (a
+// box scored by a person) has no answer variable.
+test("revision 1.3: unsettled marks on a credited question, and a box with no letters", async () => {
+  const ex = await import("../../../specs/pstat/examples/make_examples.mjs");
+  assert.deepEqual(checkProject(ex.itemResults2Boxes(), { part: ex.assessmentBoxes() }), []);
+  const bytes = writePstat(ex.itemResults2Boxes(), ex.assessmentBoxes());
+  assert.deepEqual(checkPstat(bytes), []);
+  assert.equal(pointsFor({ type: "multiple_choice" }, { correct: [], points: 1, adjustment: "credit_all", partial_credit: false }, null), 1);
+
+  const nullHere = ex.itemResults2Boxes();
+  nullHere.dataset.columns[6].values[2] = null; // r01: question 1 is not credited
+  assert.match(messages(checkProject(nullHere, { part: ex.assessmentBoxes() })), /r01 is empty only where q01 is, or on a question credited to everyone/);
+
+  const boxWithLetters = ex.itemResults2Boxes();
+  boxWithLetters.dataset.variables.push({ id: 9, name: "r03", label: "Question 3 answer", measure: "nominal", value_labels: [], missing_values: [] });
+  boxWithLetters.dataset.columns.push({ type: "text", values: ["", "", "", ""] });
+  boxWithLetters.dataset.next_id = 10;
+  boxWithLetters.source.report.variables = 9;
+  assert.match(messages(checkProject(boxWithLetters, { part: ex.assessmentBoxes() })), /r03: question 3 is of type other, which has no letters/);
+
+  const answerOnPoints = ex.itemResults2Boxes();
+  answerOnPoints.dataset.columns[2].values[1] = null; // q01 empty, r01 not
+  assert.match(messages(checkProject(answerOnPoints, { part: ex.assessmentBoxes() })), /r01 is empty where q01 is empty/);
 });
