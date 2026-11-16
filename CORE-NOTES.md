@@ -21,7 +21,7 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
 | Package for the bank reader (C4) | | Not started (priority 3, last part). |
 | Author's validator: warn, never block, with opt-in blockers | | Not started (priority 4), in the Author repository. |
-| Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0` | **Published.** The package as an `npm pack` file, the test set as a zip, the crate as a tag. Each tag also fixes the spec and the conformance files as they were. |
+| Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
 
 ## The .pstat format, in short
@@ -151,7 +151,11 @@ openstage-a11y = { git = "https://github.com/jasonswrench-beep/openstage-core", 
 
 ```bash
 openstage-a11y check guide.html --project project.json     # in words; --json for the report
+npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/a11y-v0.1.0/openstage-a11y-0.1.0.tgz
 ```
+
+The second line installs `@openstage/a11y` from its release (no sign-in needed; checked 2026-11-16 from a fresh
+folder, checksum in the release's `SHA256SUMS.txt`).
 
 The test set ([`testsets/a11y`](testsets/a11y/README.md)) has 20 cases with the findings worked out by hand;
 `node testsets/a11y/check/check_engine.mjs --engine <program>` checks any program that prints an A11Y-1 report. The

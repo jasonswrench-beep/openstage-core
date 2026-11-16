@@ -20,7 +20,7 @@ const settings = readSettings(project);                        // { ignored: [],
 const shown = applySettings(report, settings);                 // shown.blocking is empty unless a blocker's finding fails
 ```
 
-Install it from its release (no sign-in needed), once the package has one:
+Install it from its release (no sign-in needed):
 
 ```bash
 npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/a11y-v0.1.0/openstage-a11y-0.1.0.tgz
