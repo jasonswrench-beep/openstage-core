@@ -10,8 +10,11 @@ CORE-NOTES when the author schedules it.
 1. **Now:** OpenAssess and PrismStatistics finish their rounds on what the core published (PSTAT-1 1.2, set 1.1.0,
    `prismqda-stats`). Meanwhile the core does priority 3, so the next round has packages to move onto.
 2. **Next, together:** OpenExplainer, OpenStage Recorder and PrismQDA.
-   - OpenExplainer and Recorder: the capture format (C1) and the accessibility rules (C2) as core packages, once
-     priority 3 has them.
+   - Recorder (with Author): move to the core's capture code (tag `capture-v0.1.0`), and merge the two drifted
+     copies of the editing code into one core package (the list is in `specs/capture/README.md`). Capture Express
+     moves its three pins to the same tag.
+   - OpenExplainer and Recorder: the accessibility rules (C2) as a core package, once priority 3 has it. OpenExplainer
+     uses none of the capture code today.
    - PrismQDA: its section of CORE-NOTES.md (the shared statistics crate, the case-table profile, the reused ids, the
      docs sentence, and a test set for the case table).
 

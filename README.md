@@ -10,6 +10,9 @@ Each tool keeps its own code; what is here is the contract between them.
   PrismStatistics must both match.
 - [packages/pstat](packages/pstat): `@openstage/pstat`, to read, write and check `.pstat` files.
 - [crates/prismqda-stats](crates/prismqda-stats): the statistics crate PrismQDA and PrismStatistics share (Rust).
+- [specs/capture](specs/capture/README.md) and [capture](capture): the capture format (how a screen recording is
+  kept) and the Rust code that records and reads it, shared by OpenStage Author, OpenStage Recorder and Capture
+  Express.
 
 Run every check that needs nothing outside this repository with `node tools/check_all.mjs` (Node 22.2 or later, and
 cargo for the crate). The reference values are made with R (`Rscript make_reference.R` in the test set's folder), base

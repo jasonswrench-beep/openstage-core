@@ -18,7 +18,8 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [Item-analysis test set](testsets/item-analysis/README.md) (C3) | set **1.1.0** | **Ready.** OpenAssess matches 512 of 512 figures (commit ca56055), PrismStatistics 1,497 of 1,497 (a build of commit 10cee4b). |
 | [`@openstage/pstat`](packages/pstat) | **1.2.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts. |
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
-| Packages for the capture format (C1), the accessibility rules (C2) and the bank reader (C4) | | Not started (priority 3). |
+| [Capture format](specs/capture/README.md) (C1) | schema 0.2.5; crates 0.1.0, tag `capture-v0.1.0` | **Rust code and format documents moved here** (priority 3, first part); 724 tests pass. The TypeScript editing code has two drifted copies and moves here after they are merged, in the Recorder round. |
+| Packages for the accessibility rules (C2) and the bank reader (C4) | | Not started (priority 3). |
 | Author's validator: warn, never block, with opt-in blockers | | Not started (priority 4), in the Author repository. |
 | Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0` | **Published.** The package as an `npm pack` file, the test set as a zip, the crate as a tag. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
@@ -108,6 +109,21 @@ prismqda-stats = { git = "https://github.com/jasonswrench-beep/openstage-core", 
   its pin to the new tag only with its own reference tests passing. Neither app edits its own copy.
 - Its tests: `cargo test` in `crates/prismqda-stats` (also run by `node tools/check_all.mjs`). The R scripts that made
   its reference values are in `tests/reference/`.
+
+### The capture code (Rust), tag `capture-v0.1.0`
+
+Folder `capture`: the Rust workspace of six crates that record the screen and read, write and render a recording's
+folder (`openstage-capture-protocol`, `-project`, the engine `openstage-capture`, `-render`, `-windows` and `-cli`),
+and its format documents in [specs/capture](specs/capture/README.md). Moved from OpenStage Author commit 3c47a83, where
+it is the same code Capture Express pins (Author commit 4c8d23f) and OpenStage Recorder holds. Its tests read the
+shared `edit.json` examples in `capture-edit/fixtures`, which moved too.
+
+```toml
+openstage-capture-project = { git = "https://github.com/jasonswrench-beep/openstage-core", tag = "capture-v0.1.0" }
+```
+
+The same line, with the crate's name, for `-render`, `-windows` and the others. The rule is the statistics crate's: a
+change is made here first and gets a new tag, and each app moves its pin only with its own tests passing.
 
 ## The item-analysis test set (C3), set 1.1.0
 
@@ -261,6 +277,36 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    Planned cases: sub-codes counted with their parent and not, a case with no documents, attributes whose names must
    be changed, missing codes, names left out, and a code that was retired or merged.
 
+## For the OpenStage Recorder session (the next round)
+
+1. **The capture code has a home here now** (`capture`, tag `capture-v0.1.0`), the same as your `capture` folder at
+   93e2bb8. In your round: depend on the tag instead of your own copy, run your capture checks, and then remove your
+   copy. Until then, a change to it is made here first.
+2. **The editing code has drifted from Author's.** [specs/capture/README.md](specs/capture/README.md) lists the 13
+   files that differ and the webcam placement built on both sides (Author's `capture-edit/src/webcamPlace.ts`, yours
+   `capture-timeline/src/webcam-place.ts`). In your round the two copies are merged here, file by file, with the
+   Author session, and become one package both use.
+3. **The `repository` line in your `capture/Cargo.toml` names an old test repository** whose name includes an
+   assistant's name, in a public repository. The core's copy names `openstage-core`; yours goes when you switch.
+
+## For the OpenStage Author session
+
+1. **The capture code and its three format documents** (`docs/capture/capture-project-format.md`,
+   `capture-edit-format.md`, `capture-protocol-spec.md`) **were copied here from your commit 3c47a83**, and from now on
+   the core's copies are the ones to change. Move to the tag when you next work on recording, and then remove your
+   copies; until then, make no change to `capture/` or those documents without making it here first.
+2. The same old `repository` line is in your `capture/Cargo.toml`.
+3. The editing code (`capture-edit`, `capture-timeline`) is merged with the Recorder's in its round; see the Recorder
+   section.
+4. Priority 4 (your validator: warn, never block, with opt-in blockers) is the core's next piece of work in your
+   repository.
+
+## For the Capture Express session
+
+1. You pin three capture crates to OpenStage Author's repository (commit 4c8d23f). The same code is in the core at tag
+   `capture-v0.1.0`: change the three `git` lines to the core with that tag (same crate names, no code changes), run
+   your checks, and from then on take capture fixes from the core.
+
 ## Rules every session keeps
 
 - No shared item-math code between OpenAssess and PrismStatistics. They share the test set, not a library.
@@ -282,6 +328,10 @@ nothing outside the repository.
 
 ## Changes
 
+- **2026-11-15, capture (priority 3, first part).** The capture code (six Rust crates, schema 0.2.5) and its format
+  documents moved here from OpenStage Author, with the shared `edit.json` examples; tag `capture-v0.1.0`; 724 tests
+  pass. The TypeScript editing code's two copies have drifted (13 files, and webcam placement built twice), listed in
+  `specs/capture/README.md` for the merge in the Recorder round. Notes for the Recorder, Author and Capture Express.
 - **2026-11-15, public.** The author made the repository public. First releases: `pstat-v1.2.0` (the package as a
   download) and `item-analysis-v1.1.0` (the test set as a zip). PrismQDA and PrismStatistics's public copy can now
   depend on the crate's tag; R4 is done.

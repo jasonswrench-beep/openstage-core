@@ -1,0 +1,787 @@
+// SPDX-License-Identifier: Apache-2.0
+//! The `render` command: turn a recording, or an edit, into a finished MP4 (story F1).
+//!
+//! It chooses the edit (the project's `edit.json`, another file, or one made from a take as recorded), exports it
+//! with [`export`], says in plain words what it made, and then does what the recorder does after every recording:
+//! reads the finished video back through Windows, the way a player would, and checks that its length, its size and
+//! its sound are what they should be. The pieces that need Windows are passed in, so all of it is tested here.
+
+use crate::export::{
+    export, export_audio, export_frame, ExportError, ExportJob, ExportReport, ExportTools, Progress, SoundReader,
+};
+use crate::make_edit::{edit_from_take, EditOptions};
+use crate::video::{compare_audio_readback, compare_readback, compare_size_readback, SizeOf};
+use crate::{check, Check};
+use openstage_capture_project::{parse_edit, Edit, EditSeverity};
+use openstage_capture_render::{read_back_png, PictureSource, RenderSettings, TextRenderer};
+use std::path::PathBuf;
+
+/// What to make.
+#[derive(Debug, Clone)]
+pub struct RenderOptions {
+    /// The capture project folder (where the recordings are).
+    pub project: PathBuf,
+    /// Where the video goes.
+    pub out: PathBuf,
+    /// The edit to use, if not the project's own `edit.json`.
+    pub edit_file: Option<PathBuf>,
+    /// Make an edit from this take as it was recorded, instead of reading one.
+    pub take: Option<u32>,
+    /// With `take`: add one of every kind of overlay and a zoom, to see that they are drawn.
+    pub demo: bool,
+    /// Where the course's own files are (pictures and sounds an edit imports).
+    pub assets: Option<PathBuf>,
+    pub fps: u32,
+    /// The video's size, if not the size of the first picture.
+    pub size: Option<(u32, u32)>,
+    /// Use cuts instead of animated zooms.
+    pub reduce_motion: bool,
+    /// Export even if the edit still lacks things OpenStage requires (alt text, descriptions).
+    pub allow_unfinished: bool,
+    /// Make only the sound, as a WAV file, instead of a video.
+    pub audio_only: bool,
+    /// Make only the picture the video has at this moment (milliseconds from its start), as a PNG file, instead of a video.
+    pub frame_ms: Option<u64>,
+    /// Show where the pointer is, if the recording noted it (the author turns that on before recording).
+    pub highlight_cursor: bool,
+}
+
+fn say(report: &mut dyn FnMut(Check), name: &str, ok: bool, message: impl Into<String>) -> bool {
+    report(check(name, ok, message));
+    ok
+}
+
+/// Choose the edit. `Err` is the message to give the author.
+fn choose_edit(opts: &RenderOptions) -> Result<(Edit, String), String> {
+    if opts.demo && opts.take.is_none() {
+        return Err("--demo adds overlays to a take as recorded, so it needs --take <number>.".to_string());
+    }
+    if let Some(take) = opts.take {
+        if opts.edit_file.is_some() {
+            return Err(
+                "Use either --take (export a take as recorded) or --edit (export an edit file), not both.".to_string()
+            );
+        }
+        let edit = edit_from_take(&opts.project, take, EditOptions { demo: opts.demo })?;
+        let what = if opts.demo {
+            format!("take {take} as recorded, with a title, a box, an arrow, a blur, a blacked-out box and a zoom added to test them")
+        } else {
+            format!("take {take} as it was recorded")
+        };
+        return Ok((edit, what));
+    }
+    let path = opts.edit_file.clone().unwrap_or_else(|| opts.project.join("edit.json"));
+    if !path.is_file() {
+        return Err(format!(
+            "There is no edit to export: {} does not exist. To export a recording as it was made, use --take <number>.",
+            path.display()
+        ));
+    }
+    let text =
+        std::fs::read_to_string(&path).map_err(|e| format!("The edit {} could not be read: {e}", path.display()))?;
+    let parsed = parse_edit(&text)?;
+    if let Some(error) = parsed.problems.iter().find(|p| p.severity == EditSeverity::Error) {
+        return Err(format!("The edit {} cannot be exported: {}", path.display(), error.message));
+    }
+    Ok((parsed.edit, format!("the edit in {}", path.display())))
+}
+
+fn seconds_text(seconds: f64) -> String {
+    format!("{seconds:.1} seconds")
+}
+
+/// The sound of the edit as a WAV file, then a check that the file reads back as the length it should be.
+/// Pictures are not drawn, so the edit does not have to be complete (alt text and descriptions are for pictures).
+fn run_audio_only(
+    opts: &RenderOptions,
+    edit: &Edit,
+    sound: &mut dyn SoundReader,
+    cancelled: &dyn Fn() -> bool,
+    report: &mut dyn FnMut(Check),
+    progress: &mut dyn FnMut(Progress),
+) -> bool {
+    let is_wav = opts.out.extension().is_some_and(|e| e.eq_ignore_ascii_case("wav"));
+    if !is_wav {
+        return say(
+            report,
+            "export",
+            false,
+            format!("A sound-only export is a WAV file, so its name has to end in .wav: {}", opts.out.display()),
+        );
+    }
+    let settings = RenderSettings {
+        fps: opts.fps,
+        reduce_motion: opts.reduce_motion,
+        require_complete: false,
+        ..RenderSettings::default()
+    };
+    let done = match export_audio(edit, &opts.out, &settings, sound, cancelled, &mut |p| {
+        let tenth = (p.frame_count / 10).max(1);
+        if p.frames_done % tenth == 0 || p.frames_done == p.frame_count {
+            progress(p);
+        }
+    }) {
+        Ok(done) => done,
+        Err(ExportError::Cancelled) => {
+            return say(report, "export", false, "The export was cancelled. No sound file was made.")
+        }
+        Err(ExportError::Failed(why)) => return say(report, "export", false, why),
+    };
+    say(
+        report,
+        "export",
+        true,
+        format!(
+            "Exported {} of sound as a WAV file (two channels, {} samples a second): {}",
+            seconds_text(done.seconds),
+            done.sample_rate,
+            done.out.display()
+        ),
+    );
+    match read_wav_samples(&done.out) {
+        Ok(samples) if samples == done.samples => say(
+            report,
+            "audio-readback",
+            true,
+            format!("The sound file reads back as {} of sound, the length it should be.", seconds_text(done.seconds)),
+        ),
+        Ok(samples) => say(
+            report,
+            "audio-readback",
+            false,
+            format!(
+                "The sound file holds {} but it should hold {}.",
+                seconds_text(samples as f64 / done.sample_rate as f64),
+                seconds_text(done.seconds)
+            ),
+        ),
+        Err(why) => say(report, "audio-readback", false, why),
+    }
+}
+
+/// Read a WAV file this program wrote back: its header must say what the file holds, and the file must be that long.
+/// Returns how many samples (of both channels) it holds.
+fn read_wav_samples(path: &std::path::Path) -> Result<u64, String> {
+    use std::io::Read;
+    let problem = |e: std::io::Error| format!("The sound file could not be read back: {e}");
+    let length = std::fs::metadata(path).map_err(problem)?.len();
+    let mut head = [0u8; 44];
+    std::fs::File::open(path).map_err(problem)?.read_exact(&mut head).map_err(problem)?;
+    if &head[0..4] != b"RIFF" || &head[8..12] != b"WAVE" || &head[36..40] != b"data" {
+        return Err("The sound file does not start like a WAV file.".into());
+    }
+    let data = u32::from_le_bytes([head[40], head[41], head[42], head[43]]) as u64;
+    if length != 44 + data {
+        return Err(format!(
+            "The sound file is {length} bytes long but its header says it holds {data} bytes of sound."
+        ));
+    }
+    Ok(data / 4)
+}
+
+/// One picture of the edit as a PNG file, then a check that the file reads back as the size it should be.
+fn run_frame_only(
+    opts: &RenderOptions,
+    edit: &Edit,
+    at_ms: u64,
+    pictures: &mut dyn PictureSource,
+    text: &dyn TextRenderer,
+    report: &mut dyn FnMut(Check),
+) -> bool {
+    let is_png = opts.out.extension().is_some_and(|e| e.eq_ignore_ascii_case("png"));
+    if !is_png {
+        return say(
+            report,
+            "export",
+            false,
+            format!("A single picture is a PNG file, so its name has to end in .png: {}", opts.out.display()),
+        );
+    }
+    let job = ExportJob {
+        settings: RenderSettings {
+            fps: opts.fps,
+            reduce_motion: opts.reduce_motion,
+            require_complete: !opts.allow_unfinished,
+            highlight_cursor: opts.highlight_cursor,
+            ..RenderSettings::default()
+        },
+        size: opts.size,
+        bitrate_kbps: None,
+        out: opts.out.clone(),
+    };
+    let done = match export_frame(edit, &job, at_ms, pictures, text) {
+        Ok(done) => done,
+        Err(ExportError::Cancelled) => return say(report, "export", false, "The export was cancelled."),
+        Err(ExportError::Failed(why)) => return say(report, "export", false, why),
+    };
+    say(
+        report,
+        "export",
+        true,
+        format!(
+            "Exported the picture at {} as a PNG ({} by {} pixels): {}",
+            seconds_text(done.at_ms as f64 / 1000.0),
+            done.width,
+            done.height,
+            done.out.display()
+        ),
+    );
+    for note in &done.notes {
+        report(check("export-note", false, note.clone()));
+    }
+    let read = std::fs::read(&done.out)
+        .map_err(|e| format!("The picture file could not be read back: {e}"))
+        .and_then(|bytes| read_back_png(&bytes));
+    match read {
+        Ok(picture) if (picture.width, picture.height) == (done.width, done.height) => say(
+            report,
+            "frame-readback",
+            true,
+            format!(
+                "The picture file reads back as {} by {} pixels, the size it should be.",
+                picture.width, picture.height
+            ),
+        ),
+        Ok(picture) => say(
+            report,
+            "frame-readback",
+            false,
+            format!(
+                "The picture file is {} by {} pixels but it should be {} by {}.",
+                picture.width, picture.height, done.width, done.height
+            ),
+        ),
+        Err(why) => say(report, "frame-readback", false, why),
+    }
+}
+
+/// Run the command with everything it needs supplied. Reports checks as it goes; `progress` is told how far the
+/// export has got (about every tenth of the way, plus the end). Returns whether the export worked and the finished
+/// video read back as it should. Notes about the result (text that did not fit) are reported as `export-note`
+/// checks that are not ok; they do not change the answer, because the exporter did its job.
+pub fn run_render_with(
+    opts: &RenderOptions,
+    tools: ExportTools,
+    cancelled: &dyn Fn() -> bool,
+    report: &mut dyn FnMut(Check),
+    progress: &mut dyn FnMut(Progress),
+) -> bool {
+    if opts.audio_only && opts.frame_ms.is_some() {
+        return say(report, "export", false, "Choose either --audio-only or --frame, not both.");
+    }
+    let (edit, what) = match choose_edit(opts) {
+        Ok(chosen) => chosen,
+        Err(message) => return say(report, "edit", false, message),
+    };
+    say(report, "edit", true, format!("Exporting {what}, {} long.", seconds_text(edit.length_ms() / 1000.0)));
+    if opts.audio_only {
+        let ExportTools { sound, .. } = tools;
+        return run_audio_only(opts, &edit, sound, cancelled, report, progress);
+    }
+    if let Some(at_ms) = opts.frame_ms {
+        let ExportTools { pictures, text, .. } = tools;
+        return run_frame_only(opts, &edit, at_ms, pictures, text, report);
+    }
+
+    let job = ExportJob {
+        settings: RenderSettings {
+            fps: opts.fps,
+            reduce_motion: opts.reduce_motion,
+            require_complete: !opts.allow_unfinished,
+            highlight_cursor: opts.highlight_cursor,
+            ..RenderSettings::default()
+        },
+        size: opts.size,
+        bitrate_kbps: None,
+        out: opts.out.clone(),
+    };
+    let video = tools.video;
+    let outcome = export(&edit, &job, tools, cancelled, &mut |p| {
+        // Told after every frame; passed on only about every tenth of the way, and at the end.
+        let tenth = (p.frame_count / 10).max(1);
+        if p.frames_done % tenth == 0 || p.frames_done == p.frame_count {
+            progress(p);
+        }
+    });
+    let finished: ExportReport = match outcome {
+        Ok(done) => done,
+        Err(ExportError::Cancelled) => return say(report, "export", false, ExportError::Cancelled.to_string()),
+        Err(ExportError::Failed(why)) => return say(report, "export", false, why),
+    };
+    say(
+        report,
+        "export",
+        true,
+        format!(
+            "Exported {} of video, {} pictures at {} by {} pixels, {} a second{}: {}",
+            seconds_text(finished.seconds),
+            finished.frames,
+            finished.width,
+            finished.height,
+            finished.fps,
+            if finished.sound { ", with sound" } else { ", with no sound" },
+            finished.out.display()
+        ),
+    );
+
+    // Read the finished video back the way a player would.
+    let read = video.inspect_video(&finished.out);
+    let recorded_ms = (finished.seconds * 1000.0).round() as u64;
+    let mut ok = true;
+    let mut findings = vec![compare_readback(
+        read.as_ref().map(Clone::clone).map_err(|e| crate::ScreenError::Failed(e.to_string())),
+        recorded_ms,
+    )];
+    findings.push(compare_size_readback(&read, (finished.width, finished.height), SizeOf::Export));
+    if finished.sound {
+        findings.push(compare_audio_readback(&read, recorded_ms));
+    }
+    for finding in findings {
+        ok &= finding.ok;
+        report(finding);
+    }
+    for note in &finished.notes {
+        report(check("export-note", false, note.clone()));
+    }
+    ok
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::export::SoundReader;
+    use crate::video::{AudioInspection, SinkSpec, VideoInspection, VideoPlatform, VideoSink};
+    use crate::{EncoderInfo, Frame, ScreenError};
+    use openstage_capture_project::{
+        create_project, create_take_with, finish_take, EditSourceRef, EditTrackKind, MediaFile,
+    };
+    use openstage_capture_render::{BlockText, Layer, Picture, PictureSource, Rgb};
+    use std::cell::RefCell;
+    use std::fs;
+    use std::path::Path;
+    use std::rc::Rc;
+    use std::time::Duration;
+
+    struct Pictures;
+    impl PictureSource for Pictures {
+        fn picture(&mut self, layer: &Layer) -> Result<Rc<Picture>, String> {
+            let (w, h) = if layer.track_kind == EditTrackKind::Webcam { (32, 18) } else { (64, 36) };
+            Ok(Rc::new(Picture::solid(w, h, Rgb(0, 80, 160))))
+        }
+
+        fn cursor(&mut self, _: &Layer, _: &Picture) -> Option<openstage_capture_render::CursorMark> {
+            Some(openstage_capture_render::CursorMark { x: 32.0, y: 18.0, click_age_ms: None })
+        }
+    }
+    struct Sounds;
+    impl SoundReader for Sounds {
+        fn read(&mut self, _: &EditSourceRef, _: u64, frames: usize) -> Result<Vec<i16>, String> {
+            Ok(vec![500; frames * 2])
+        }
+    }
+
+    /// A video writer that remembers what it was given and says it read back whatever it wrote, unless told to lie.
+    #[derive(Default)]
+    struct State {
+        frames: u64,
+        audio_frames: u64,
+        size: (u32, u32),
+        fps: u32,
+        sound: bool,
+        shorten_by_ms: u64,
+        lose_sound: bool,
+    }
+    struct Sink(Rc<RefCell<State>>);
+    impl VideoSink for Sink {
+        fn write(&mut self, _: &Frame, _: i64, _: i64) -> Result<(), ScreenError> {
+            self.0.borrow_mut().frames += 1;
+            Ok(())
+        }
+        fn write_audio(&mut self, samples: &[i16], _: i64) -> Result<(), ScreenError> {
+            self.0.borrow_mut().audio_frames += samples.len() as u64 / 2;
+            Ok(())
+        }
+        fn finish(self: Box<Self>) -> Result<(), ScreenError> {
+            Ok(())
+        }
+    }
+    struct Video(Rc<RefCell<State>>);
+    impl VideoPlatform for Video {
+        fn start_media(&self) -> Result<(), ScreenError> {
+            Ok(())
+        }
+        fn h264_encoders(&self) -> Result<Vec<EncoderInfo>, ScreenError> {
+            Ok(vec![])
+        }
+        fn create_sink(&self, spec: &SinkSpec) -> Result<Box<dyn VideoSink>, ScreenError> {
+            {
+                let mut s = self.0.borrow_mut();
+                s.size = (spec.width, spec.height);
+                s.fps = spec.fps;
+                s.sound = spec.audio.is_some();
+            }
+            fs::write(&spec.path, b"video").map_err(|e| ScreenError::Failed(e.to_string()))?;
+            Ok(Box::new(Sink(Rc::clone(&self.0))))
+        }
+        fn inspect_video(&self, _: &Path) -> Result<VideoInspection, ScreenError> {
+            let s = self.0.borrow();
+            let duration = (s.frames * 1000 / s.fps.max(1) as u64).saturating_sub(s.shorten_by_ms);
+            Ok(VideoInspection {
+                frames: s.frames,
+                duration_ms: duration,
+                audio: (s.sound && !s.lose_sound)
+                    .then(|| AudioInspection { samples: 10, duration_ms: s.audio_frames * 1000 / 48_000 }),
+                size: Some(s.size),
+            })
+        }
+        fn process_cpu_time(&self) -> Option<Duration> {
+            None
+        }
+        fn logical_cores(&self) -> u32 {
+            1
+        }
+    }
+
+    fn media(file: &str, kind: &str) -> MediaFile {
+        MediaFile {
+            file: file.into(),
+            kind: kind.into(),
+            container: "wav".into(),
+            mix: None,
+            region: None,
+            camera: None,
+            interactions: None,
+        }
+    }
+
+    fn project(seconds: u64) -> (tempfile::TempDir, PathBuf) {
+        let dir = tempfile::tempdir().unwrap();
+        let project = dir.path().join("p.capture");
+        create_project(&project, "t", "en-US").unwrap();
+        let files = vec![media("screen.mp4", "screen"), media("mic.wav", "microphone"), media("webcam.mp4", "webcam")];
+        create_take_with(&project, 1, vec!["screen:1".into()], None, 2000, files).unwrap();
+        finish_take(&project, 1, seconds * 1000, 3).unwrap();
+        (dir, project)
+    }
+
+    fn options(project: &Path, out: &Path) -> RenderOptions {
+        RenderOptions {
+            project: project.to_path_buf(),
+            out: out.to_path_buf(),
+            edit_file: None,
+            take: Some(1),
+            demo: false,
+            assets: None,
+            fps: 10,
+            size: None,
+            reduce_motion: false,
+            allow_unfinished: false,
+            audio_only: false,
+            frame_ms: None,
+            highlight_cursor: false,
+        }
+    }
+
+    struct Outcome {
+        ok: bool,
+        checks: Vec<Check>,
+        progress: Vec<Progress>,
+        state: Rc<RefCell<State>>,
+    }
+
+    fn render(opts: &RenderOptions, tune: impl FnOnce(&mut State), cancel_after: Option<usize>) -> Outcome {
+        let state = Rc::new(RefCell::new(State::default()));
+        tune(&mut state.borrow_mut());
+        let video = Video(Rc::clone(&state));
+        let mut pictures = Pictures;
+        let mut sounds = Sounds;
+        let mut checks = Vec::new();
+        let mut progress = Vec::new();
+        let calls = std::cell::Cell::new(0usize);
+        let cancelled = || {
+            calls.set(calls.get() + 1);
+            cancel_after.is_some_and(|n| calls.get() > n)
+        };
+        let ok = run_render_with(
+            opts,
+            ExportTools { video: &video, pictures: &mut pictures, text: &BlockText, sound: &mut sounds },
+            &cancelled,
+            &mut |c| checks.push(c),
+            &mut |p| progress.push(p),
+        );
+        Outcome { ok, checks, progress, state }
+    }
+
+    fn find<'a>(o: &'a Outcome, name: &str) -> &'a Check {
+        o.checks.iter().find(|c| c.check == name).unwrap_or_else(|| panic!("no check {name}: {:?}", o.checks))
+    }
+
+    #[test]
+    fn a_take_is_exported_as_recorded_and_read_back_in_words() {
+        let (dir, project) = project(10);
+        let out = dir.path().join("lesson.mp4");
+        let o = render(&options(&project, &out), |_| {}, None);
+        assert!(o.ok, "{:?}", o.checks);
+        let names: Vec<&str> = o.checks.iter().map(|c| c.check.as_str()).collect();
+        assert_eq!(names, ["edit", "export", "video-readback", "video-size", "audio-readback"]);
+        assert_eq!(find(&o, "edit").message, "Exporting take 1 as it was recorded, 10.0 seconds long.");
+        assert!(
+            find(&o, "export").message.starts_with(
+                "Exported 10.0 seconds of video, 100 pictures at 64 by 36 pixels, 10 a second, with sound: "
+            ),
+            "{}",
+            find(&o, "export").message
+        );
+        assert!(out.is_file());
+        assert_eq!(o.state.borrow().size, (64, 36));
+    }
+
+    #[test]
+    fn progress_is_told_about_every_tenth_of_the_way_and_at_the_end() {
+        let (dir, project) = project(10);
+        let o = render(&options(&project, &dir.path().join("x.mp4")), |_| {}, None);
+        let percents: Vec<u64> = o.progress.iter().map(|p| p.frames_done * 100 / p.frame_count).collect();
+        assert_eq!(percents, [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+    }
+
+    #[test]
+    fn the_demo_edit_exports_too_and_says_what_was_added() {
+        let (dir, project) = project(10);
+        let mut opts = options(&project, &dir.path().join("demo.mp4"));
+        opts.demo = true;
+        let o = render(&opts, |_| {}, None);
+        assert!(o.ok, "{:?}", o.checks);
+        assert!(find(&o, "edit")
+            .message
+            .contains("a title, a box, an arrow, a blur, a blacked-out box and a zoom added to test them"));
+    }
+
+    #[test]
+    fn a_cancelled_export_says_so_and_fails() {
+        let (dir, project) = project(10);
+        let out = dir.path().join("x.mp4");
+        let o = render(&options(&project, &out), |_| {}, Some(20));
+        assert!(!o.ok);
+        assert_eq!(find(&o, "export").message, "The export was cancelled. No video file was made.");
+        assert!(!out.exists() && !dir.path().join("x.mp4.part").exists());
+    }
+
+    #[test]
+    fn no_edit_yet_is_explained_with_what_to_do() {
+        let (dir, project) = project(10);
+        let mut opts = options(&project, &dir.path().join("x.mp4"));
+        opts.take = None;
+        let o = render(&opts, |_| {}, None);
+        assert!(!o.ok);
+        let m = &find(&o, "edit").message;
+        assert!(m.contains("There is no edit to export") && m.contains("--take <number>"), "{m}");
+    }
+
+    #[test]
+    fn an_edit_file_is_read_and_a_bad_one_is_refused_in_words() {
+        let (dir, project) = project(10);
+        let good = dir.path().join("edit.json");
+        fs::write(
+            &good,
+            fs::read_to_string(
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../capture-edit/fixtures/valid-basic.json"),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        let mut opts = options(&project, &dir.path().join("x.mp4"));
+        opts.take = None;
+        opts.edit_file = Some(good);
+        opts.fps = 5;
+        let o = render(&opts, |_| {}, None);
+        assert!(o.ok, "{:?}", o.checks);
+        assert!(find(&o, "edit").message.starts_with("Exporting the edit in "));
+
+        let bad = dir.path().join("bad.json");
+        fs::write(
+            &bad,
+            fs::read_to_string(
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../capture-edit/fixtures/overlap.json"),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        opts.edit_file = Some(bad);
+        let o = render(&opts, |_| {}, None);
+        assert!(!o.ok && find(&o, "edit").message.contains("cannot be exported"), "{:?}", o.checks);
+
+        let junk = dir.path().join("junk.json");
+        fs::write(&junk, "nonsense").unwrap();
+        opts.edit_file = Some(junk);
+        assert!(find(&render(&opts, |_| {}, None), "edit").message.contains("not a readable edit file"));
+    }
+
+    #[test]
+    fn a_choice_that_makes_no_sense_is_refused() {
+        let (dir, project) = project(10);
+        let mut opts = options(&project, &dir.path().join("x.mp4"));
+        opts.take = None;
+        opts.demo = true;
+        assert!(find(&render(&opts, |_| {}, None), "edit")
+            .message
+            .contains("--demo adds overlays to a take as recorded, so it needs --take"));
+        let mut opts = options(&project, &dir.path().join("x.mp4"));
+        opts.edit_file = Some(dir.path().join("e.json"));
+        assert!(find(&render(&opts, |_| {}, None), "edit").message.contains("either --take"));
+    }
+
+    #[test]
+    fn a_finished_video_that_reads_back_wrong_is_a_problem_even_though_it_was_written() {
+        let (dir, project) = project(10);
+        let shorter = render(&options(&project, &dir.path().join("a.mp4")), |s| s.shorten_by_ms = 3000, None);
+        assert!(!shorter.ok);
+        assert!(!find(&shorter, "video-readback").ok);
+        let silent = render(&options(&project, &dir.path().join("b.mp4")), |s| s.lose_sound = true, None);
+        assert!(!silent.ok);
+        assert!(!find(&silent, "audio-readback").ok);
+    }
+
+    #[test]
+    fn an_edit_that_lacks_things_is_exported_only_when_allowed() {
+        let (dir, project) = project(10);
+        let needs = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../capture-edit/fixtures/needs-attention.json");
+        let file = dir.path().join("needs.json");
+        fs::write(&file, fs::read_to_string(needs).unwrap()).unwrap();
+        let mut opts = options(&project, &dir.path().join("x.mp4"));
+        opts.take = None;
+        opts.edit_file = Some(file);
+        opts.fps = 5;
+        let refused = render(&opts, |_| {}, None);
+        assert!(!refused.ok && find(&refused, "export").message.starts_with("The edit is not finished:"));
+        opts.allow_unfinished = true;
+        let allowed = render(&opts, |_| {}, None);
+        assert!(allowed.ok, "{:?}", allowed.checks);
+    }
+
+    #[test]
+    fn only_the_sound_is_exported_as_a_wav_and_read_back_in_words() {
+        let (dir, project) = project(10);
+        let out = dir.path().join("lesson.wav");
+        let mut opts = options(&project, &out);
+        opts.audio_only = true;
+        let o = render(&opts, |_| {}, None);
+        assert!(o.ok, "{:?}", o.checks);
+        let names: Vec<&str> = o.checks.iter().map(|c| c.check.as_str()).collect();
+        assert_eq!(names, ["edit", "export", "audio-readback"]);
+        assert!(
+            find(&o, "export")
+                .message
+                .starts_with("Exported 10.0 seconds of sound as a WAV file (two channels, 48000 samples a second): "),
+            "{}",
+            find(&o, "export").message
+        );
+        assert_eq!(
+            find(&o, "audio-readback").message,
+            "The sound file reads back as 10.0 seconds of sound, the length it should be."
+        );
+        assert_eq!(fs::metadata(&out).unwrap().len(), 44 + 10 * 48_000 * 4);
+        assert_eq!(o.state.borrow().frames, 0, "no picture was drawn and no video was written");
+        assert_eq!(o.progress.last().map(|p| p.frames_done), Some(100));
+    }
+
+    #[test]
+    fn a_sound_only_export_needs_a_wav_name_and_says_so() {
+        let (dir, project) = project(10);
+        let out = dir.path().join("lesson.mp4");
+        let mut opts = options(&project, &out);
+        opts.audio_only = true;
+        let o = render(&opts, |_| {}, None);
+        assert!(!o.ok);
+        assert!(find(&o, "export").message.contains("has to end in .wav"), "{}", find(&o, "export").message);
+        assert!(!out.exists());
+    }
+
+    #[test]
+    fn a_cancelled_sound_only_export_says_no_sound_file_was_made() {
+        let (dir, project) = project(10);
+        let out = dir.path().join("lesson.wav");
+        let mut opts = options(&project, &out);
+        opts.audio_only = true;
+        let o = render(&opts, |_| {}, Some(2));
+        assert!(!o.ok);
+        assert_eq!(find(&o, "export").message, "The export was cancelled. No sound file was made.");
+        assert!(!out.exists());
+    }
+
+    #[test]
+    fn one_picture_is_exported_as_a_png_and_read_back_in_words() {
+        let (dir, project) = project(10);
+        let out = dir.path().join("moment.png");
+        let mut opts = options(&project, &out);
+        opts.frame_ms = Some(4_000);
+        let o = render(&opts, |_| {}, None);
+        assert!(o.ok, "{:?}", o.checks);
+        let names: Vec<&str> = o.checks.iter().map(|c| c.check.as_str()).collect();
+        assert_eq!(names, ["edit", "export", "frame-readback"]);
+        assert_eq!(
+            find(&o, "export").message,
+            format!("Exported the picture at 4.0 seconds as a PNG (64 by 36 pixels): {}", out.display())
+        );
+        assert_eq!(
+            find(&o, "frame-readback").message,
+            "The picture file reads back as 64 by 36 pixels, the size it should be."
+        );
+        assert!(fs::metadata(&out).unwrap().len() > 64 * 36 * 3);
+        assert_eq!(o.state.borrow().frames, 0, "no video was written");
+        assert!(o.progress.is_empty(), "a single picture has no progress to report");
+    }
+
+    #[test]
+    fn a_single_picture_needs_a_png_name_and_a_moment_inside_the_edit_and_says_so() {
+        let (dir, project) = project(10);
+        let wrong = dir.path().join("moment.jpg");
+        let mut opts = options(&project, &wrong);
+        opts.frame_ms = Some(1_000);
+        let o = render(&opts, |_| {}, None);
+        assert!(!o.ok);
+        assert!(find(&o, "export").message.contains("has to end in .png"), "{}", find(&o, "export").message);
+        assert!(!wrong.exists());
+        let out = dir.path().join("late.png");
+        opts.out = out.clone();
+        opts.frame_ms = Some(12_000);
+        let o = render(&opts, |_| {}, None);
+        assert!(!o.ok);
+        assert_eq!(
+            find(&o, "export").message,
+            "The edit is 10.0 seconds long, so there is no picture at 12.0 seconds."
+        );
+        assert!(!out.exists());
+    }
+
+    #[test]
+    fn a_picture_and_a_sound_file_cannot_be_asked_for_together() {
+        let (dir, project) = project(10);
+        let mut opts = options(&project, &dir.path().join("x.png"));
+        opts.frame_ms = Some(1_000);
+        opts.audio_only = true;
+        let o = render(&opts, |_| {}, None);
+        assert!(!o.ok);
+        assert_eq!(o.checks.len(), 1, "it says so before anything else: {:?}", o.checks);
+        assert_eq!(find(&o, "export").message, "Choose either --audio-only or --frame, not both.");
+    }
+
+    #[test]
+    fn the_pointer_is_in_the_picture_only_when_asked_for() {
+        let (dir, project) = project(10);
+        let read = |name: &str, highlight: bool| {
+            let out = dir.path().join(name);
+            let mut opts = options(&project, &out);
+            opts.frame_ms = Some(4_000);
+            opts.highlight_cursor = highlight;
+            let o = render(&opts, |_| {}, None);
+            assert!(o.ok, "{:?}", o.checks);
+            openstage_capture_render::read_back_png(&fs::read(&out).unwrap()).unwrap()
+        };
+        let plain = read("plain.png", false);
+        let shown = read("shown.png", true);
+        let centre = (18 * 64 + 32) * 3;
+        assert_eq!(&plain.rgb[centre..centre + 3], &[0, 80, 160], "the recorded picture, as it was");
+        assert_ne!(&shown.rgb[centre..centre + 3], &[0, 80, 160], "the pointer is over it where the source says");
+        assert_eq!(&shown.rgb[..3], &plain.rgb[..3], "and the far corner is the same");
+    }
+}

@@ -56,8 +56,9 @@ if (!process.argv.includes("--no-rust")) {
   } catch {
     cargo = false;
   }
-  for (const name of readdirSync(join(ROOT, "crates")).sort()) {
-    if (cargo) run(`crates/${name} tests (cargo test)`, ["test", "--quiet"], join(ROOT, "crates", name), "cargo");
-    else console.log(`crates/${name} tests ... skipped: cargo is not on the PATH`);
+  const workspaces = [...readdirSync(join(ROOT, "crates")).sort().map((name) => [`crates/${name}`, ["test", "--quiet"]]), ["capture", ["test", "--workspace", "--quiet"]]];
+  for (const [dir, args] of workspaces) {
+    if (cargo) run(`${dir} tests (cargo test)`, args, join(ROOT, ...dir.split("/")), "cargo");
+    else console.log(`${dir} tests ... skipped: cargo is not on the PATH`);
   }
 }
