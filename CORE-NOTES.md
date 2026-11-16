@@ -14,14 +14,14 @@ revision, and only then in the tools. These notes are kept current with every ch
 | Piece | Version | State |
 |---|---|---|
 | [.pstat format](specs/pstat/PSTAT-1.md) | format 1, spec revision **1.3** | **Locked.** New in 1.1: profile parts, `OpenAssess item results 2`, `PrismQDA case table 1`, and the `q` numbering settled. New in 1.2: profile 2 may carry students' ids and names. New in 1.3: a box scored by a person has no answer variable; a credited question's unsettled marks are an empty answer cell; a credited question is never counted blank. PrismStatistics opened and refused the 33 conformance files of 1.2 as the spec says; the 34th is new. |
-| [Item-analysis test set](testsets/item-analysis/README.md) (C3) | set **2.0.0** | **Ready.** New in 2.0.0: `credited-40`, and a credited question counted credited, never blank (the author's ruling). OpenAssess matches 598 of 598 figures (commit d1ef945, no change needed). PrismStatistics matched 1,497 of 1,497 of set 1.1.0; it has to follow the ruling (its section). |
+| [Item-analysis test set](testsets/item-analysis/README.md) (C3) | set **2.0.0** | **Ready.** New in 2.0.0: `credited-40`, and a credited question counted credited, never blank (the author's ruling). OpenAssess matches 598 of 598 figures (commit d1ef945, no change needed). PrismStatistics follows it: a build of its commit 98b42b5 (0.2.2) matches all 1,851 figures and opens the 34 reader files as the spec says (its section). |
 | [`@openstage/pstat`](packages/pstat) | **1.3.0** | **Ready.** Reads, writes and checks `.pstat` files, the profiles and their parts (revision 1.3). |
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | [Capture format](specs/capture/README.md) (C1) | schema 0.2.5; crates 0.1.0, tag `capture-v0.1.0` | **Rust code and format documents moved here** (priority 3, first part); 724 tests pass. The TypeScript editing code has two drifted copies and moves here after they are merged, in the Recorder round. |
 | [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
 | [Bank reader](specs/bank/BANK-1.md) (C4) | BANK-1 revision **1.0** (OpenAssess bank format 1); `@openstage/bank` 0.1.0, tag `bank-v0.1.0` | **Ready** (priority 3, last part). Reads a `.openassess` bank in Node or a browser, with no dependencies: every question with its key, details, folder, pictures, equations, history and when it was last given; what it cannot read is listed. Held to two banks OpenAssess's own code wrote and seven hand-made ones. |
 | Author's validator: warn, never block, with opt-in blockers | | Priority 4. Author's session has begun it in its own round (its `CORE-REQUESTS.md` R2: findings warn, `accessibilityBlockers`); the core's part is A11Y-1 sections 5 and 8. See its section below. |
-| Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0`, `bank-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`, `@openstage/bank`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
+| Releases | `pstat-v1.3.0`, `item-analysis-v2.0.0` (both 2026-11-16; the earlier `pstat-v1.2.0` and `item-analysis-v1.1.0` stay up), `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0`, `bank-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`, `@openstage/bank`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
 
 ## The .pstat format, in short
@@ -86,7 +86,7 @@ Folder `packages/pstat`. ES module, no dependencies, Node 22.2 or later. Types i
 **Installing it**, from its release (no sign-in needed):
 
 ```bash
-npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/pstat-v1.2.0/openstage-pstat-1.2.0.tgz
+npm install --save-dev https://github.com/jasonswrench-beep/openstage-core/releases/download/pstat-v1.3.0/openstage-pstat-1.3.0.tgz
 ```
 
 A tool with a no-runtime-dependency rule, such as OpenAssess, keeps its own writer and uses this package only in its
@@ -337,9 +337,10 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    the variables and their summaries). Recognise the profile on opening as you planned; `case_id` is the key to match
    on, and `case-table.json` says where each column came from.
 7. **R4 is done: the core is public and tagged.** A release check can fetch the conformance and test-set files by tag,
-   with no clone at a known path: the source archive `https://github.com/jasonswrench-beep/openstage-core/archive/refs/tags/pstat-v1.2.0.tar.gz`
+   with no clone at a known path: the source archive `https://github.com/jasonswrench-beep/openstage-core/archive/refs/tags/pstat-v1.3.0.tar.gz`
    (unpack, then `node specs/pstat/conformance/check_reader.mjs --prism <build>`), or the set alone,
-   `https://github.com/jasonswrench-beep/openstage-core/releases/download/item-analysis-v1.1.0/item-analysis-1.1.0.zip`.
+   `https://github.com/jasonswrench-beep/openstage-core/releases/download/item-analysis-v2.0.0/item-analysis-2.0.0.zip`.
+   (Since 2026-11-16 these are revision 1.3 and set 2.0.0; the 1.2 and 1.1.0 addresses still work.)
    **Your public copy (`prism_statistics`) can now use the core's tag** `prismqda-stats-v1.0.0`, the same line as the
    private one; anyone can build it.
 8. In your copy's `check_prismstatistics.mjs`, the note that item means, SDs and difficulty are not computed is out
@@ -360,7 +361,10 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
    reader conformance check passes 34 of 34 (the new file opens), and set 2.0.0 matches 1,846 of 1,852 figures. The
    six that differ are all `credited-40` q07 on the letters: you count its 8 sheets (5 `""`, 3 `null`) as `blank`
    where the set has them as `credited`. You already keep the `null` sheets in (every other figure, `n` among them,
-   matches), so the only change is where those sheets are counted.
+   matches), so the only change is where those sheets are counted. (The sixth of those six is the checker's note that
+   you count a `blank` answer the set does not have, not a figure: the set has 1,851.)
+   **Done, at your commit 8d383f1; confirmed here on a build of 98b42b5 (0.2.2, which contains it), made the same way,
+   2026-11-16:** the reader conformance check 34 of 34, and set 2.0.0 1,851 figures matching, none differing.
 
 ## For the PrismQDA session
 
@@ -523,7 +527,11 @@ when cargo is not on the PATH, or with `--no-rust`). It needs nothing outside th
   counted blank (the author's ruling of 2026-11-15). Item-analysis set 2.0.0 (a changed definition, so a major
   version): the case `credited-40`; no 1.1.0 figure changed but `letters-60` q11's empty `blank` row, now `credited`.
   OpenAssess passes 598 of 598 unchanged; PrismStatistics follows (its section). The spec's example
-  `item-results-2-boxes.pstat` and a 34th reader conformance file.
+  `item-results-2-boxes.pstat` and a 34th reader conformance file. Released the same day at the author's yes:
+  `pstat-v1.3.0` (`openstage-pstat-1.3.0.tgz`, SHA-256 182a39b9…) and `item-analysis-v2.0.0`
+  (`item-analysis-2.0.0.zip`, SHA-256 6dc6e052…), each with its `SHA256SUMS.txt`; downloaded and installed with no
+  sign-in, and the unzipped set passes `check_set.mjs`. PrismStatistics 0.2.2 (commit 98b42b5) confirmed here: 34 of
+  34 and 1,851 of 1,851.
 
 - **2026-11-16, bank reader (priority 3, last part).** BANK-1 revision 1.0 (`specs/bank`): OpenAssess's bank format 1
   as other tools read it. `@openstage/bank` 0.1.0 (tag `bank-v0.1.0`), the reader, for Node and the browser. The test
