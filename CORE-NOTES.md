@@ -527,6 +527,11 @@ when cargo is not on the PATH, or with `--no-rust`). It needs nothing outside th
 
 ## Changes
 
+- **2026-11-16, the author's answers.** Every choice made without asking is kept: a box scored by a person has no
+  answer variable (PSTAT-1 1.3), the two item-statistic labels as the test set words them, all of A11Y-1's choices,
+  and all four of BANK-1's (section 8.2). Nothing in a spec or package changes. Still open for the author: reading
+  the rules' words in `specs/a11y/rules.json`, and the checks in the PrismStatistics window.
+
 - **2026-11-16, the two rulings.** PSTAT-1 revision 1.3 and `@openstage/pstat` 1.3.0: a box scored by a person has no
   answer variable; a credited question's unsettled marks are an empty answer cell; a credited question is never
   counted blank (the author's ruling of 2026-11-15). Item-analysis set 2.0.0 (a changed definition, so a major
