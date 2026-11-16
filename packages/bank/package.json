@@ -1,0 +1,30 @@
+{
+  "name": "@openstage/bank",
+  "version": "0.1.0",
+  "description": "Reads an OpenAssess question bank (.openassess, format 1; specs/bank/BANK-1.md): every question with its key, details, folder, pictures, equations, history and when it was last given, and what could not be read. No dependencies; Node or a browser.",
+  "license": "Apache-2.0",
+  "author": "Jason S. Wrench",
+  "homepage": "https://github.com/jasonswrench-beep/openstage-core/tree/main/packages/bank",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonswrench-beep/openstage-core.git",
+    "directory": "packages/bank"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

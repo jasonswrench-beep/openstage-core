@@ -1,0 +1,6 @@
+{
+  "id": "not-a-zip",
+  "about": "A text file named as a bank.",
+  "input": "text.openassess",
+  "error": "not-a-zip"
+}

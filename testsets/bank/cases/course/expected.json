@@ -1,0 +1,354 @@
+{
+  "id": "course",
+  "about": "A bank written by OpenAssess's bank code (sources/make_course_bank.ts, alpha 29): three folders, one inside another; full details on a question; a picture and its bytes; an equation; question 2 edited by a second author (version 2, and back to draft, since OpenAssess returns an edited reviewed question to draft); a retired question; a question in no folder; a test of questions 1 and 2, and a class's figures for it dated 2026-11-14. Every value comes from the script.",
+  "input": "course.openassess",
+  "bank": {
+    "title": "Introduction to Printing",
+    "description": "Questions for the printing unit.",
+    "subject": "CMP 101",
+    "bankId": "bank_01M7JCE7N9BVGSWMY93T6WR6MR",
+    "created": "2026-11-10T09:00:00.000Z",
+    "folders": [
+      {
+        "id": "f_01M7JCE7NAF5W0XJ3AVV70EF17",
+        "name": "Chapter 1: Printers",
+        "path": [
+          "Chapter 1: Printers"
+        ],
+        "parentId": null,
+        "depth": 0,
+        "questionIds": [
+          "q_01M7JCE7NW8E69S95NMNP6HJGG"
+        ]
+      },
+      {
+        "id": "f_01M7JCE7NB0T2DQBDB3DG4RWMT",
+        "name": "Lesson 1.1: The Print window",
+        "path": [
+          "Chapter 1: Printers",
+          "Lesson 1.1: The Print window"
+        ],
+        "parentId": "f_01M7JCE7NAF5W0XJ3AVV70EF17",
+        "depth": 1,
+        "questionIds": [
+          "q_01M7JCE7NC6DG3C864WZNNNW8Z"
+        ]
+      },
+      {
+        "id": "f_01M7JCE7NB0T2DQBDB3DG4RWMV",
+        "name": "Chapter 2: Settings",
+        "path": [
+          "Chapter 2: Settings"
+        ],
+        "parentId": null,
+        "depth": 0,
+        "questionIds": [
+          "q_01M7JCE7NX3G04N1GZR3A6E9VF",
+          "q_01M7JCE7NY7VJYCEV5JPDHYHMZ"
+        ]
+      }
+    ],
+    "tests": [
+      {
+        "id": "t_01M7JCE7NZ0YGSQQ2YY5GD07RM",
+        "name": "Unit quiz",
+        "created": "2026-11-13T08:00:00.000Z",
+        "questionIds": [
+          "q_01M7JCE7NC6DG3C864WZNNNW8Z",
+          "q_01M7JCE7NW8E69S95NMNP6HJGG"
+        ]
+      }
+    ],
+    "administrations": [
+      {
+        "testId": "t_01M7JCE7NZ0YGSQQ2YY5GD07RM",
+        "testName": "Unit quiz",
+        "date": "2026-11-14",
+        "sheets": 24,
+        "questionIds": [
+          "q_01M7JCE7NC6DG3C864WZNNNW8Z",
+          "q_01M7JCE7NW8E69S95NMNP6HJGG"
+        ]
+      }
+    ]
+  },
+  "questions": [
+    {
+      "id": "q_01M7JCE7NW8E69S95NMNP6HJGG",
+      "type": "numeric",
+      "title": "Sheets for ten pages",
+      "revision": 2,
+      "points": 1,
+      "stem": {
+        "text": "Two pages per sheet and [Equation: n = 10] pages: how many sheets?"
+      },
+      "key": {
+        "mode": "exact",
+        "value": 5
+      },
+      "hasKey": true,
+      "equations": [
+        {
+          "latex": "n = 10",
+          "source": "typed"
+        }
+      ],
+      "metadata": {
+        "objective": "Work out sheets of paper",
+        "chapter": "1",
+        "bloom": "apply",
+        "difficulty": "medium",
+        "tags": [],
+        "status": "draft"
+      },
+      "history": [
+        {
+          "by": "Test author",
+          "change": "created",
+          "toVersion": 1
+        },
+        {
+          "at": "2026-11-12T10:00:00.000Z",
+          "by": "Second author",
+          "change": "retitled",
+          "fromVersion": 1,
+          "toVersion": 2
+        }
+      ],
+      "lastChanged": {
+        "at": "2026-11-12T10:00:00.000Z",
+        "by": "Second author"
+      },
+      "folder": {
+        "id": "f_01M7JCE7NAF5W0XJ3AVV70EF17",
+        "name": "Chapter 1: Printers",
+        "path": [
+          "Chapter 1: Printers"
+        ]
+      },
+      "usage": {
+        "tests": [
+          "t_01M7JCE7NZ0YGSQQ2YY5GD07RM"
+        ],
+        "timesGiven": 1,
+        "lastGiven": "2026-11-14"
+      }
+    },
+    {
+      "id": "q_01M7JCE7NC6DG3C864WZNNNW8Z",
+      "type": "multipleChoice",
+      "title": "Which button prints",
+      "revision": 1,
+      "points": 2,
+      "stem": {
+        "html": "<p>In the Print window shown, which button sends the pages to the printer?</p><oa-media ref=\"m_01M7JCE7NB0T2DQBDB3DG4RWMW\"></oa-media>",
+        "text": "In the Print window shown, which button sends the pages to the printer?\n[Picture: The Print window, with the Print button at the bottom right]"
+      },
+      "shuffle": false,
+      "options": [
+        {
+          "id": "o1",
+          "text": {
+            "text": "Print"
+          },
+          "correct": true,
+          "fixed": false,
+          "feedback": {
+            "html": "<p>Yes: <strong>Print</strong> sends it.</p>",
+            "text": "Yes: Print sends it."
+          }
+        },
+        {
+          "id": "o2",
+          "text": {
+            "text": "Preview"
+          },
+          "correct": false
+        },
+        {
+          "id": "o3",
+          "text": {
+            "text": "Cancel"
+          },
+          "correct": false
+        },
+        {
+          "id": "o4",
+          "text": {
+            "text": "None of the above"
+          },
+          "correct": false,
+          "fixed": true
+        }
+      ],
+      "key": {
+        "correct": [
+          "o1"
+        ]
+      },
+      "hasKey": true,
+      "feedback": {
+        "correct": {
+          "text": "Right."
+        },
+        "incorrect": {
+          "text": "Look at the bottom right of the window."
+        }
+      },
+      "metadata": {
+        "objective": "Print a document",
+        "chapter": "1",
+        "section": "1.1",
+        "page": "12",
+        "bloom": "remember",
+        "difficulty": "easy",
+        "tags": [
+          "print window",
+          "buttons"
+        ],
+        "author": "Test author",
+        "status": "approved"
+      },
+      "pictures": [
+        {
+          "file": "media/m_01M7JCE7NB0T2DQBDB3DG4RWMW.png",
+          "mime": "image/png",
+          "alt": "The Print window, with the Print button at the bottom right",
+          "decorative": false,
+          "width": 1,
+          "height": 1,
+          "present": true
+        }
+      ],
+      "findings": [
+        {
+          "code": "quality.all-or-none-of-the-above"
+        },
+        {
+          "code": "a11y.alt-text-gives-answer"
+        }
+      ],
+      "folder": {
+        "id": "f_01M7JCE7NB0T2DQBDB3DG4RWMT",
+        "name": "Lesson 1.1: The Print window",
+        "path": [
+          "Chapter 1: Printers",
+          "Lesson 1.1: The Print window"
+        ]
+      },
+      "usage": {
+        "tests": [
+          "t_01M7JCE7NZ0YGSQQ2YY5GD07RM"
+        ],
+        "timesGiven": 1,
+        "lastGiven": "2026-11-14"
+      }
+    },
+    {
+      "id": "q_01M7JCE7NX3G04N1GZR3A6E9VF",
+      "type": "essay",
+      "title": "Why preview",
+      "points": 5,
+      "key": {
+        "modelAnswer": {
+          "text": "To catch layout problems and save paper."
+        },
+        "rubric": [
+          {
+            "criterion": "Names a reason",
+            "points": 2
+          },
+          {
+            "criterion": "Explains it",
+            "points": 3,
+            "description": "Says what goes wrong without it"
+          }
+        ],
+        "expectedWords": 80
+      },
+      "hasKey": true,
+      "metadata": {
+        "objective": "Explain print preview",
+        "chapter": "2",
+        "bloom": "understand",
+        "tags": [
+          "preview"
+        ],
+        "status": "draft"
+      },
+      "folder": {
+        "id": "f_01M7JCE7NB0T2DQBDB3DG4RWMV",
+        "name": "Chapter 2: Settings",
+        "path": [
+          "Chapter 2: Settings"
+        ]
+      },
+      "usage": {
+        "tests": [],
+        "timesGiven": 0,
+        "lastGiven": null
+      }
+    },
+    {
+      "id": "q_01M7JCE7NY7VJYCEV5JPDHYHMZ",
+      "type": "trueFalse",
+      "title": "Old dialog",
+      "key": {
+        "correct": false
+      },
+      "hasKey": true,
+      "metadata": {
+        "chapter": "2",
+        "tags": [],
+        "status": "retired"
+      },
+      "folder": {
+        "id": "f_01M7JCE7NB0T2DQBDB3DG4RWMV"
+      }
+    },
+    {
+      "id": "q_01M7JCE7NY7VJYCEV5JPDHYHN0",
+      "type": "ordering",
+      "title": "Steps to print",
+      "key": {
+        "items": [
+          {
+            "id": "i1",
+            "text": {
+              "text": "Press Ctrl+P"
+            },
+            "position": 1
+          },
+          {
+            "id": "i2",
+            "text": {
+              "text": "Choose the printer"
+            },
+            "position": 2
+          },
+          {
+            "id": "i3",
+            "text": {
+              "text": "Press Print"
+            },
+            "position": 3
+          }
+        ]
+      },
+      "hasKey": true,
+      "folder": null
+    }
+  ],
+  "media": [
+    {
+      "file": "media/m_01M7JCE7NB0T2DQBDB3DG4RWMW.png",
+      "bytes": 68,
+      "sha256": "9f00b9c41b4ef20c302df206851543bd63a0ec9d4aa6f191156a27880496ecfe"
+    },
+    {
+      "file": "media/m_not_there.png",
+      "bytes": null
+    }
+  ],
+  "problems": []
+}

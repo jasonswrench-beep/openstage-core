@@ -18,6 +18,9 @@ Each tool keeps its own code; what is here is the contract between them.
   [crates/openstage-a11y](crates/openstage-a11y) (the engine that checks web pages, help sites, EPUB, Word, PowerPoint
   and captions files), [packages/a11y](packages/a11y) (`@openstage/a11y`, for editors) and
   [testsets/a11y](testsets/a11y/README.md) (the cases every checker must match).
+- [specs/bank/BANK-1.md](specs/bank/BANK-1.md): OpenAssess's question bank file (`.openassess`, format 1) as other tools
+  read it, with [packages/bank](packages/bank) (`@openstage/bank`, the reader, for Node and the browser) and
+  [testsets/bank](testsets/bank/README.md) (banks, two written by OpenAssess itself, and what a reader must give).
 
 Run every check that needs nothing outside this repository with `node tools/check_all.mjs` (Node 22.2 or later, and
 cargo for the crate). The reference values are made with R (`Rscript make_reference.R` in the test set's folder), base

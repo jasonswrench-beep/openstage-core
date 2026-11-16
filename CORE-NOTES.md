@@ -1,6 +1,6 @@
 # Core notes
 
-**Updated 2026-11-16 (priority 3, second part: the accessibility rules, A11Y-1).** Repository
+**Updated 2026-11-16 (priority 3, last part: the bank reader, BANK-1).** Repository
 `jasonswrench-beep/openstage-core`, **public since 2026-11-15**. Working folder on the author's PC:
 `C:\Dev\openstage-core`.
 
@@ -19,8 +19,8 @@ revision, and only then in the tools. These notes are kept current with every ch
 | [`prismqda-stats`](crates/prismqda-stats) (R5) | **1.0.0**, tag `prismqda-stats-v1.0.0` | **Ready.** The statistics crate, moved here from PrismQDA commit 56a161e unchanged apart from its `Cargo.toml`; its 92 tests (71 against R) pass here. |
 | [Capture format](specs/capture/README.md) (C1) | schema 0.2.5; crates 0.1.0, tag `capture-v0.1.0` | **Rust code and format documents moved here** (priority 3, first part); 724 tests pass. The TypeScript editing code has two drifted copies and moves here after they are merged, in the Recorder round. |
 | [Accessibility rules](specs/a11y/A11Y-1.md) (C2) | A11Y-1 revision **1.0**; engine `openstage-a11y` 0.1.0, tag `a11y-v0.1.0`; `@openstage/a11y` 0.1.0 | **Ready** (priority 3, second part). One catalogue of 36 machine rules and 6 checks for a person, mapped to WCAG 2.1 AA; PDF Remediator's status words; one contrast arithmetic; the report; the project setting for ignored rules and opt-in blockers (empty unless the author chooses). The engine (Rust, and a command-line program) checks web pages, help sites, EPUB, Word, PowerPoint and WebVTT; PDFs not yet. A test set of 20 cases worked out by hand. |
-| Package for the bank reader (C4) | | Not started (priority 3, last part). |
-| Author's validator: warn, never block, with opt-in blockers | | Not started (priority 4), in the Author repository. |
+| [Bank reader](specs/bank/BANK-1.md) (C4) | BANK-1 revision **1.0** (OpenAssess bank format 1); `@openstage/bank` 0.1.0, tag `bank-v0.1.0` | **Ready** (priority 3, last part). Reads a `.openassess` bank in Node or a browser, with no dependencies: every question with its key, details, folder, pictures, equations, history and when it was last given; what it cannot read is listed. Held to two banks OpenAssess's own code wrote and seven hand-made ones. |
+| Author's validator: warn, never block, with opt-in blockers | | Priority 4. Author's session has begun it in its own round (its `CORE-REQUESTS.md` R2: findings warn, `accessibilityBlockers`); the core's part is A11Y-1 sections 5 and 8. See its section below. |
 | Releases | `pstat-v1.2.0`, `item-analysis-v1.1.0`, `prismqda-stats-v1.0.0`, `capture-v0.1.0`, `a11y-v0.1.0` | **Published.** The packages as `npm pack` files (`@openstage/pstat`, `@openstage/a11y`), the item-analysis test set as a zip, the Rust crates as tags. Each tag also fixes the spec and the conformance files as they were. |
 | C7 source ledger, C8 local AI runtime and assistant server | | On the [roadmap](ROADMAP.md), the author's word: agreed, not scheduled. |
 
@@ -165,6 +165,36 @@ showed was fixed: a focus rule was flagged although the box around the field sho
 not reported, and a case in the set), and print and forced-colours rules were listed as limits (now left out). A page
 whose content a script builds is judged on the file as it is, and the report now says so in its limits.
 
+## The bank reader (C4), BANK-1 revision 1.0
+
+[BANK-1](specs/bank/BANK-1.md) is OpenAssess's bank file (`.openassess`, format 1) as other tools read it: the ZIP's
+entries, the manifest, the folders, a question (its envelope, the eleven types' bodies, the rich-text subset,
+details, pictures and equations, history), tests and a class's figures, what a reader refuses and what it reports,
+and the reader's view of a question. **OpenAssess writes banks and owns the format**; a change a reader would see is
+written into BANK-1 in the same round.
+
+[`@openstage/bank`](packages/bank) 0.1.0 is the reader, plain JavaScript with no dependencies, for Node 20 and the
+browser (it unpacks with the browser's `DecompressionStream`, or `node:zlib`, or a function the caller passes):
+
+```js
+import { readBank } from "@openstage/bank";
+const bank = await readBank(bytes);   // bank.questions, bank.folders, bank.tests, bank.problems, await bank.media(file)
+```
+
+Each question gives `id`, `revision`, `type` and `typeName`, `title`, `stem` (`{ html, text }`, the HTML cleaned to
+the subset, since a bank can come from anyone), `points`, `options`, `key` by type and `hasKey`, `feedback`,
+`metadata` (objective, chapter, section, page, Bloom level, difficulty, tags, author, status), `folder`, `pictures`
+(description, and the bytes through `bank.media`), `equations` (LaTeX and MathML), `history` and `lastChanged`,
+`usage` (the tests that hold it, how many times it was given and the last date), OpenAssess's live findings, and
+`raw`, the JSON as stored. A bank of a newer format is refused (`BankError`, code `newer-format`), never read in
+part.
+
+The test set ([`testsets/bank`](testsets/bank/README.md)) has 9 cases. Two are banks **OpenAssess's own code
+wrote** (its GIFT importer, and its bank code through a script in `testsets/bank/sources`, run read-only against
+OpenAssess commit d1ef945), so the reader is held to the real writer; seven are hand-made (a damaged bank, a damaged
+ZIP entry, and five files that are refused). `node testsets/bank/check/check_reader.mjs --module <file>` checks any
+reader with the same shape.
+
 ## The item-analysis test set (C3), set 1.1.0
 
 Folder `testsets/item-analysis`; [its README](testsets/item-analysis/README.md) defines every figure.
@@ -245,6 +275,13 @@ Read against your handoff of 2026-11-15 and `CORE-REQUESTS.md` (as changed after
    answer, the box cut out upright, and a person scoring it against the rubric. The model's reading of handwriting
    waits on C8.
 5. Alpha 27 stays held on the author's word.
+6. **Your bank file now has a spec in the core: [BANK-1](specs/bank/BANK-1.md)** (format 1, as alpha 29 writes it),
+   and a reader, `@openstage/bank`, that OpenStage Author and OpenStage Guide asked for. You keep writing banks and
+   owning the format. What is asked of you: when a change would be seen by a reader (a new member on a question, a new
+   type, a new `formatVersion`), say so in your `CORE-HANDOFF.md`, so BANK-1 gets a revision and the test set a case in
+   the same round. Two banks in the set were written by your own code (`testsets/bank/sources`: your GIFT importer, and
+   `make_course_bank.ts`, which calls your `Bank`, `createQuestion` and `createTest`); nothing in your repository was
+   changed. Your `src/read` module ("do not build on it") stays yours; the core's reader does not use it.
 
 ## For the PrismStatistics session
 
@@ -368,11 +405,43 @@ Read against your handoff of 2026-11-15 (`CORE-HANDOFF.md`, `CORE-REQUESTS.md`).
 2. The same old `repository` line is in your `capture/Cargo.toml`.
 3. The editing code (`capture-edit`, `capture-timeline`) is merged with the Recorder's in its round; see the Recorder
    section.
-4. Priority 4 (your validator: warn, never block, with opt-in blockers) is the core's next piece of work in your
-   repository. It now has its rules: A11Y-1 section 5 is the setting (`accessibilityChecks`, empty by default) and
-   section 8 maps your validator's accessibility ids to the shared ones (`alt-text-missing` to `alt-missing`,
-   `click-without-key` to `keyboard-operate`, `tab-order-duplicate` to `focus-order`, and so on). One difference to
-   settle in that round: your large-text cut-off is 18.66px bold, A11Y-1's is 14 points (18.67px).
+4. **Priority 4 and your `CORE-REQUESTS.md` R2.** Your request says you have already made accessibility findings
+   warnings and added `accessibilityBlockers` (format 0.50.0, off unless the author turns it on), which is what priority
+   4 asked; it was not committed when the core read your working folder on 2026-11-16, so nothing here builds on it.
+   A11Y-1 is now published (tag `a11y-v0.1.0`), answering R2:
+   - R2.1 the catalogue as data: `specs/a11y/rules.json` (ids, titles, WCAG criteria and their levels; every criterion
+     named is in WCAG 2.0 except 1.4.11, added in 2.1). The engine checks published HTML, so your published course can be
+     run through it after a publish, its findings shown as warnings.
+   - R2.2 the ids: A11Y-1 section 8 maps yours to the shared ones (`alt-text-missing` to `alt-missing`,
+     `click-without-key` to `keyboard-operate`, `tab-order-duplicate` to `focus-order`, `contrast` to `contrast-text`,
+     and so on), so a project's blockers keep their meaning.
+   - R2.3 the statuses: section 4.1, with their words and symbols.
+   - **One thing to settle**: A11Y-1 section 5 keeps the setting as `accessibilityChecks: { ignored, ignoredFindings,
+     blockers }` with the shared ids, so every tool writes it the same way. If 0.50.0 is not yet released, write that
+     member instead of `accessibilityBlockers`; if it is, move it across in your next format version with a migration.
+   - Your large-text cut-off is 18.66px bold; A11Y-1's is 14 points (18.67px).
+5. **The bank reader (C4) is what your R1 asked for**: `@openstage/bank` 0.1.0 (no dependencies, types, from the
+   tag `bank-v0.1.0`) and its test set. What R1 listed, and where it is in a question: `id`, `revision`, the bank's
+   own option ids (`options[].id`); `type` with `typeName`, the key per type (`key`), `points`, and `hasKey`; for a type
+   you do not hold, the reason is yours to give (BANK-1 section 8.2 leaves it to the tool); `metadata.objective`,
+   `chapter`, `section`, `page`, `bloom` (your `bloomLevel`), `difficulty`, `tags`, and `folder` (with its `path`);
+   `history`, `lastChanged`, and `usage.lastGiven` (the last date a class was given it); `feedback.correct` and
+   `incorrect` (and each option's own `feedback`); `pictures` with `alt` and `decorative`, and the bytes from
+   `await bank.media(file)`; `equations` with LaTeX and MathML; and `bank.problems`, what could not be read, by
+   question. The field names for your `source` object can now be the bank's.
+
+## For the OpenStage Guide session
+
+1. **The bank reader (C4) answers your `CORE-REQUESTS.md` G3**: `@openstage/bank` 0.1.0 started from what
+   `src/guide-bank.mjs` does (format check, newer formats refused, folders in order with their sub-folders' questions,
+   retired questions, a damaged file named and skipped). Move onto it when you next work on the bank import: it works
+   in the add-in's browser without JSZip, and gives every question's key and details; your `questionToItem` (what a
+   guide item can hold) stays yours, reading `q.key` and `q.options` in place of the raw body. Differences to know:
+   it gives retired questions (with `metadata.status` "retired") and leaves the choice to you; a picture is in
+   `q.pictures` and an equation in `q.equations`, and their placeholders are in `q.stem.html`.
+2. **Your G2 (the accessibility rules from JavaScript, with no Rust build)**: not yet. The engine is Rust; a build of
+   it for the browser (WebAssembly) is on the [roadmap](ROADMAP.md). Meanwhile `@openstage/a11y` gives the catalogue,
+   the statuses, contrast and the settings in JavaScript.
 
 ## For the Capture Express session
 
@@ -404,11 +473,16 @@ node tools/check_all.mjs
 ```
 
 This runs each package's tests, the test set's own check, `readPstat` against the conformance files, the spec's
-example files, the A11Y-1 catalogue's copies and the accessibility test set's checksums, and `cargo test` for each
-crate (the accessibility engine's run of its 20 cases among them; skipped when cargo is not on the PATH, or with
-`--no-rust`). It needs nothing outside the repository.
+example files, the bank reader against its 9 cases, the A11Y-1 catalogue's copies, the accessibility and bank test
+sets' checksums, and `cargo test` for each crate (the accessibility engine's run of its 20 cases among them; skipped
+when cargo is not on the PATH, or with `--no-rust`). It needs nothing outside the repository.
 
 ## Changes
+
+- **2026-11-16, bank reader (priority 3, last part).** BANK-1 revision 1.0 (`specs/bank`): OpenAssess's bank format 1
+  as other tools read it. `@openstage/bank` 0.1.0 (tag `bank-v0.1.0`), the reader, for Node and the browser. The test
+  set of 9 cases, two written by OpenAssess's own code. Notes for Author (R1, and R2 against A11Y-1), OpenStage Guide
+  (G3, G2) and OpenAssess.
 
 - **2026-11-16, accessibility rules (priority 3, second part).** A11Y-1 revision 1.0 (`specs/a11y`): the catalogue
   (36 machine rules, 6 checks for a person), statuses, contrast, the report and the project setting

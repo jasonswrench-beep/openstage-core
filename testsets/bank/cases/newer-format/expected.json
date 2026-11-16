@@ -1,0 +1,6 @@
+{
+  "id": "newer-format",
+  "about": "A bank of format 2: refused, never read in part.",
+  "input": "newer.openassess",
+  "error": "newer-format"
+}

@@ -1,0 +1,139 @@
+{
+  "id": "damaged",
+  "about": "A bank with something wrong in many places: folders.json is not JSON (every question is then in no folder); a question file that is not JSON; a type format 1 does not have; a question with no stem; two files holding one id; a question in a file named for another id, with a status that is not one of format 1's; a picture the bank does not hold; HTML outside the subset (an attribute, a script, a picture, a link) and a plain-text feedback. Each is reported, and none stops the rest being read.",
+  "input": "damaged.openassess",
+  "bank": {
+    "title": "Hand-made bank",
+    "folders": []
+  },
+  "questions": [
+    {
+      "id": "q_01KA9C4B000000000000000001",
+      "title": "Fine",
+      "folder": null,
+      "key": {
+        "correct": [
+          "o1"
+        ]
+      }
+    },
+    {
+      "id": "q_01KA9C4B000000000000000005",
+      "title": "Named wrongly",
+      "key": {
+        "correct": false
+      },
+      "metadata": {
+        "status": "draft"
+      }
+    },
+    {
+      "id": "q_01KA9C4B000000000000000008",
+      "key": {
+        "caseSensitive": false,
+        "accepted": [
+          "Ctrl"
+        ]
+      },
+      "hasKey": true,
+      "pictures": [
+        {
+          "file": "media/m_gone.png",
+          "alt": "A keyboard",
+          "present": false
+        }
+      ],
+      "stem": {
+        "text": "Name the key.\n[Picture: A keyboard]"
+      }
+    },
+    {
+      "id": "q_01KA9C4B000000000000000009",
+      "title": "Cleaned",
+      "hasKey": false,
+      "key": {
+        "correct": []
+      },
+      "stem": {
+        "html": "<p>Pick one &amp; only</p>link",
+        "text": "Pick one & only\nlink"
+      },
+      "options": [
+        {
+          "id": "o1",
+          "text": {
+            "text": "A"
+          }
+        },
+        {
+          "id": "o2",
+          "text": {
+            "html": "<p>B &lt; C</p>",
+            "text": "B < C"
+          }
+        }
+      ],
+      "feedback": {
+        "general": {
+          "html": "<p>Line one<br>Line two</p><p>New para &lt;b&gt;</p>",
+          "text": "Line one\nLine two\nNew para <b>"
+        }
+      }
+    }
+  ],
+  "problems": [
+    {
+      "file": "folders.json",
+      "skipped": false,
+      "contains": "folders could not be read"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000002.json",
+      "questionId": "q_01KA9C4B000000000000000002",
+      "skipped": true,
+      "contains": "could not be read"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000003.json",
+      "questionId": "q_01KA9C4B000000000000000003",
+      "skipped": true,
+      "contains": "type \"dragAndDrop\""
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000004.json",
+      "questionId": "q_01KA9C4B000000000000000004",
+      "skipped": true,
+      "contains": "no stem"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000006.json",
+      "questionId": "q_01KA9C4B000000000000000005",
+      "skipped": false,
+      "contains": "named for"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000006.json",
+      "questionId": "q_01KA9C4B000000000000000005",
+      "skipped": false,
+      "contains": "status could not be read"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000007.json",
+      "questionId": "q_01KA9C4B000000000000000001",
+      "skipped": true,
+      "contains": "already holds"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000008.json",
+      "questionId": "q_01KA9C4B000000000000000008",
+      "skipped": false,
+      "contains": "media/m_gone.png is not in the bank"
+    },
+    {
+      "file": "questions/q_01KA9C4B000000000000000009.json",
+      "questionId": "q_01KA9C4B000000000000000009",
+      "skipped": false,
+      "contains": "(5 pieces)"
+    }
+  ]
+}

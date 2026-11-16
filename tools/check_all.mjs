@@ -1,7 +1,8 @@
 // Runs every check in the repository that needs nothing outside it: each package's tests, the item-analysis test
-// set's own check, readPstat against the .pstat reader conformance files, the spec's example files, the A11Y-1
-// catalogue's copies and the accessibility test set's checksums, and (when cargo is on the PATH) each Rust crate's
-// tests, the accessibility engine's run of its test set among them. Run from the root: node tools/check_all.mjs [--no-rust]
+// set's own check, readPstat against the .pstat reader conformance files, the spec's example files, the bank reader
+// against its test set, the A11Y-1 catalogue's copies, the accessibility and bank test sets' checksums, and (when cargo
+// is on the PATH) each Rust crate's tests, the accessibility engine's run of its test set among them.
+// Run from the root: node tools/check_all.mjs [--no-rust]
 // The checks of the tools themselves (OpenAssess, PrismStatistics) need those tools; see CORE-NOTES.md.
 
 import { execFileSync } from "node:child_process";
@@ -49,13 +50,14 @@ run(".pstat reader conformance (readPstat)", [join("specs", "pstat", "conformanc
   }
 }
 
-// The A11Y-1 catalogue's copies, and the accessibility test set's checksums (every file listed, none extra). The set's
-// cases themselves are run by the engine's cargo tests below.
+// The A11Y-1 catalogue's copies; the accessibility and bank test sets' checksums (every file listed, none extra); and
+// the bank reader against its set. The accessibility set's cases are run by the engine's cargo tests below.
 run("A11Y-1 catalogue copies", [join("tools", "sync_a11y_rules.mjs"), "--check"]);
-{
+run("bank test set (check_reader.mjs)", [join("testsets", "bank", "check", "check_reader.mjs")]);
+for (const [name, label] of [["a11y", "accessibility"], ["bank", "bank"]]) {
   const { createHash } = await import("node:crypto");
   const { statSync } = await import("node:fs");
-  const set = join(ROOT, "testsets", "a11y");
+  const set = join(ROOT, "testsets", name);
   const listed = new Map(readFileSync(join(set, "SHA256SUMS.txt"), "utf8").trim().split("\n").map((l) => [l.slice(66), l.slice(0, 64)]));
   const found = [];
   const walk = (d, rel) => {
@@ -69,10 +71,10 @@ run("A11Y-1 catalogue copies", [join("tools", "sync_a11y_rules.mjs"), "--check"]
   walk(set, "");
   const bad = found.filter((r) => listed.get(r) !== createHash("sha256").update(readFileSync(join(set, ...r.split("/")))).digest("hex"));
   const gone = [...listed.keys()].filter((r) => !found.includes(r));
-  process.stdout.write("accessibility test set checksums ... ");
+  process.stdout.write(`${label} test set checksums ... `);
   if (bad.length === 0 && gone.length === 0) console.log("ok");
   else {
-    console.log(`FAILED: changed or unlisted ${bad.join(", ") || "none"}; missing ${gone.join(", ") || "none"} (run node testsets/a11y/make_cases.mjs)`);
+    console.log(`FAILED: changed or unlisted ${bad.join(", ") || "none"}; missing ${gone.join(", ") || "none"} (run node testsets/${name}/make_cases.mjs)`);
     process.exitCode = 1;
   }
 }

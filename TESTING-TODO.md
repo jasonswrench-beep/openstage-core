@@ -17,6 +17,17 @@ Everything else is checked by the scripts (`node tools/check_all.mjs`, and the t
   you have another statistics program at hand, its reliability output for one case (`class-40`: alpha 0.6131,
   `reliability_listwise.alpha` in `reference.json`) would confirm them from outside R.
 
+## The bank reader, BANK-1 (2026-11-16)
+
+- [ ] **Optional: a real bank of yours.** The reader has read two banks OpenAssess made for the test set, not one of
+  your own courses. If you have one you are happy for it to read on this computer, say where it is; nothing leaves
+  the computer and the bank is not changed.
+- [ ] **Keep or change the choices made without asking** (BANK-1 section 8.2 says each one):
+  - retired questions are given, with their status, and each tool decides whether to offer them;
+  - in plain text a picture reads "[Picture: its description]" and an equation "[Equation: its LaTeX]";
+  - a question with no title takes the first 64 characters of its question text;
+  - an essay counts as having a key when it has a model answer or a rubric.
+
 ## The accessibility rules, A11Y-1 (2026-11-16)
 
 - [ ] **Read the rules' words.** `specs\a11y\rules.json` holds every rule's title, message

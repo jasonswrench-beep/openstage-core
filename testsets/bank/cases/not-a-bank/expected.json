@@ -1,0 +1,6 @@
+{
+  "id": "not-a-bank",
+  "about": "A ZIP whose manifest says it is something else.",
+  "input": "other.openassess",
+  "error": "not-a-bank"
+}

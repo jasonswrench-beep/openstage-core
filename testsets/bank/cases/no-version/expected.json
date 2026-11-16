@@ -1,0 +1,6 @@
+{
+  "id": "no-version",
+  "about": "A manifest that says it is a bank and gives no format version.",
+  "input": "no-version.openassess",
+  "error": "no-version"
+}

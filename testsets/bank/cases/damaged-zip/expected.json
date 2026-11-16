@@ -1,0 +1,19 @@
+{
+  "id": "damaged-zip",
+  "about": "A bank whose second question's stored bytes were changed after it was packed, so its check value no longer matches: that question is reported and the other is read.",
+  "input": "damaged-zip.openassess",
+  "questions": [
+    {
+      "id": "q_01KA9C4B000000000000000001",
+      "title": "Fine"
+    }
+  ],
+  "problems": [
+    {
+      "file": "questions/q_01KA9C4B000000000000000002.json",
+      "questionId": "q_01KA9C4B000000000000000002",
+      "skipped": true,
+      "contains": "check value does not match"
+    }
+  ]
+}

@@ -1,9 +1,10 @@
 # Roadmap
 
 Later work for the shared core: agreed in principle, not scheduled. The current work is in [CORE-NOTES.md](CORE-NOTES.md)
-("Where things stand"): priority 3, packaging the capture format (C1, done: the Rust part), the accessibility rules
-(C2, done: A11Y-1) and the bank reader (C4, next); then priority 4, Author's validator warning instead of blocking. An item moves from here into
-CORE-NOTES when the author schedules it.
+("Where things stand"): priority 3, packaging the capture format (C1, done: the Rust part; the TypeScript editing code
+in the Recorder round), the accessibility rules (C2, done: A11Y-1) and the bank reader (C4, done: BANK-1); then
+priority 4, Author's validator warning instead of blocking, which Author's session has begun in its own round. An
+item moves from here into CORE-NOTES when the author schedules it.
 
 ## The order of the rounds (the author's word, 2026-11-15)
 
@@ -18,6 +19,15 @@ CORE-NOTES when the author schedules it.
      them in the same round. OpenExplainer uses none of the capture code today.
    - PrismQDA: its section of CORE-NOTES.md (the shared statistics crate, the case-table profile, the reused ids, the
      docs sentence, and a test set for the case table).
+   - Author and OpenStage Guide (in their own rounds): read OpenAssess banks with `@openstage/bank` (tag
+     `bank-v0.1.0`); what each asked and where it is, is in their CORE-NOTES sections.
+
+## The accessibility engine in a browser (asked by OpenStage Guide, G2)
+
+Guide is an Office add-in and cannot run a Rust program. A WebAssembly build of `openstage-a11y` (the same checks, as a
+JavaScript module) would let Guide, and any editor, check a page's HTML in place. To be weighed against the size it adds
+to an add-in. Also asked (by Author, R2.1): the catalogue saying which WCAG version added each criterion; today only
+1.4.11 is from 2.1, the rest from 2.0.
 
 ## C7: the source ledger (textbook passages)
 

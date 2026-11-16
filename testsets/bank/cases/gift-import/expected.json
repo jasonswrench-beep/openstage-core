@@ -1,0 +1,257 @@
+{
+  "id": "gift-import",
+  "about": "A bank written by OpenAssess's own importer from sources/printing.gift (alpha 29): one question of each of eight types, no folders (GIFT's categories become tags), the importer's history entry. Every value here comes from the GIFT file.",
+  "input": "printing.openassess",
+  "bank": {
+    "title": "printing",
+    "bankId": "bank_01M7JCBXTCC8E01SYTR70RRQXS",
+    "formatVersion": 1,
+    "folders": [],
+    "tests": [],
+    "administrations": []
+  },
+  "questions": [
+    {
+      "id": "q_01M7JCBXT6CFYJMBAH2G7C96FR",
+      "type": "multipleChoice",
+      "typeName": "Multiple choice",
+      "title": "Default printer",
+      "revision": 1,
+      "points": 1,
+      "stem": {
+        "text": "Which printer does a program use when you press Ctrl+P?"
+      },
+      "options": [
+        {
+          "id": "o1",
+          "text": {
+            "text": "The default printer"
+          },
+          "correct": true,
+          "feedback": {
+            "text": "Right: the default printer is used unless you choose another."
+          }
+        },
+        {
+          "id": "o2",
+          "text": {
+            "text": "The last printer you used"
+          },
+          "correct": false,
+          "feedback": {
+            "text": "Not unless you set it that way."
+          }
+        },
+        {
+          "id": "o3",
+          "text": {
+            "text": "The nearest printer"
+          },
+          "correct": false
+        },
+        {
+          "id": "o4",
+          "text": {
+            "text": "A printer chosen at random"
+          },
+          "correct": false
+        }
+      ],
+      "key": {
+        "correct": [
+          "o1"
+        ]
+      },
+      "hasKey": true,
+      "metadata": {
+        "tags": [
+          "Printing/Choosing a printer"
+        ],
+        "status": "draft"
+      },
+      "folder": null,
+      "history": [
+        {
+          "by": "import",
+          "change": "created",
+          "toVersion": 1
+        }
+      ],
+      "usage": {
+        "tests": [],
+        "timesGiven": 0,
+        "lastGiven": null
+      }
+    },
+    {
+      "id": "q_01M7JCBXT83KZ0PD9KNMNJHG1B",
+      "type": "multipleResponse",
+      "title": "Paper sizes",
+      "stem": {
+        "text": "Which of these are paper sizes?"
+      },
+      "options": [
+        {
+          "id": "o1",
+          "text": {
+            "text": "Letter"
+          },
+          "correct": true
+        },
+        {
+          "id": "o2",
+          "text": {
+            "text": "A4"
+          },
+          "correct": true
+        },
+        {
+          "id": "o3",
+          "text": {
+            "text": "Ledger blue"
+          },
+          "correct": false
+        }
+      ],
+      "key": {
+        "correct": [
+          "o1",
+          "o2"
+        ],
+        "partialCredit": true
+      },
+      "hasKey": true,
+      "metadata": {
+        "tags": [
+          "Printing/Choosing a printer"
+        ],
+        "status": "draft"
+      }
+    },
+    {
+      "id": "q_01M7JCBXT963DN443KJZ9XP451",
+      "type": "trueFalse",
+      "typeName": "True or false",
+      "title": "Print preview",
+      "stem": {
+        "text": "Print preview shows the pages before they are printed."
+      },
+      "key": {
+        "correct": true
+      },
+      "hasKey": true
+    },
+    {
+      "id": "q_01M7JCBXT963DN443KJZ9XP452",
+      "type": "fillInBlank",
+      "title": "Copies box",
+      "stem": {
+        "text": "The box for how many copies to print is called the _____ box."
+      },
+      "key": {
+        "caseSensitive": false,
+        "blanks": [
+          {
+            "id": "b1",
+            "accepted": [
+              "Copies",
+              "copies count"
+            ]
+          }
+        ]
+      },
+      "hasKey": true,
+      "metadata": {
+        "tags": [
+          "Printing/Settings"
+        ],
+        "status": "draft"
+      }
+    },
+    {
+      "id": "q_01M7JCBXT963DN443KJZ9XP453",
+      "type": "shortAnswer",
+      "title": "Shortcut",
+      "stem": {
+        "text": "Which key, held with P, opens the Print window?"
+      },
+      "key": {
+        "caseSensitive": false,
+        "accepted": [
+          "Ctrl",
+          "Control"
+        ]
+      },
+      "hasKey": true
+    },
+    {
+      "id": "q_01M7JCBXT963DN443KJZ9XP454",
+      "type": "matching",
+      "title": "Match the setting",
+      "stem": {
+        "text": "Match each setting with what it does."
+      },
+      "key": {
+        "pairs": [
+          {
+            "id": "p1",
+            "left": {
+              "text": "Copies"
+            },
+            "right": "How many of each page"
+          },
+          {
+            "id": "p2",
+            "left": {
+              "text": "Orientation"
+            },
+            "right": "Which way the page turns"
+          },
+          {
+            "id": "p3",
+            "left": {
+              "text": "Scale"
+            },
+            "right": "How large the page prints"
+          }
+        ],
+        "distractors": []
+      },
+      "hasKey": true
+    },
+    {
+      "id": "q_01M7JCBXTA6BFWGMYAMZ7RX5M8",
+      "type": "numeric",
+      "title": "Pages per sheet",
+      "key": {
+        "mode": "exact",
+        "value": 2
+      },
+      "hasKey": true
+    },
+    {
+      "id": "q_01M7JCBXTA6BFWGMYAMZ7RX5M9",
+      "type": "numeric",
+      "title": "Margins",
+      "key": {
+        "mode": "tolerance",
+        "value": 25,
+        "tolerance": 5
+      },
+      "hasKey": true
+    },
+    {
+      "id": "q_01M7JCBXTA6BFWGMYAMZ7RX5MA",
+      "type": "essay",
+      "title": "Why preview",
+      "key": {
+        "rubric": []
+      },
+      "hasKey": false,
+      "stem": {
+        "text": "Explain why someone might preview a document before printing it."
+      }
+    }
+  ],
+  "problems": []
+}

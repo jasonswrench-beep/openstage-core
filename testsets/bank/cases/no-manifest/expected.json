@@ -1,0 +1,6 @@
+{
+  "id": "no-manifest",
+  "about": "A ZIP of questions with no manifest.",
+  "input": "no-manifest.openassess",
+  "error": "no-manifest"
+}
